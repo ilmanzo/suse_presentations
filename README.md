@@ -2,4 +2,5 @@
 
 This repository is a container for some presentation I'm giving 
 
-[introduction to libYUI](libyui_rest_api.html)
+- [introduction to libYUI](libyui_rest_api.html)
+
