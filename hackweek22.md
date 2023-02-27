@@ -89,9 +89,12 @@ we can also import an "existing" Containerfile and check it for errors, suggest 
 
 - having a good testsuite gives you freedom to a fearless refactor
 - TDD lets you think from the users perspective
-- Metaprogramming is very powerful and expressive
+- Metaprogramming can be hard but is very powerful and expressive
 - Choice of license is also important
 - Examples and documentation are as important as a good working code
 
+---
+# Thank you!
 
+Questions ?
 
