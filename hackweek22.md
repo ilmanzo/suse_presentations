@@ -12,14 +12,13 @@ theme: default
 ![bg left fit](img/opensuse-logo-color.svg)
 
 ---
-
 ## Project scope and purpose
 
 - Practice with Nim advanced features like macros and metaprogramming
 - Play with container technology
 - Develop a POC that can be expanded for future cases
 - Use TDD methodology to design and develop
-- Have fun
+- Have fun and try out something different
 
 ---
 ## the Nim programming language
@@ -82,6 +81,14 @@ for distro in ["leap","tumbleweed"]:
     image.build
 ```
 we can also import an "existing" Containerfile and check it for errors, suggest optimizations and fix security issues
+
+---
+## How can useful for SUSE ?
+
+- writing declarative YAML is getting more and more common (from Dockerfile to K8s to CI actions, to openQA schedules) but get tedious and error-prone
+- having the support of a strong typed compiler and tools helps to increase flexibility and reduce human errors
+- The tool can be reversed as a linter: import/parse an existing declarative definition (from customer ?) and give hints about possible optimizations or security issues
+
 
 ---
 
