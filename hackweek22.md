@@ -48,6 +48,12 @@ feel free to join `#discuss-nim` on slack
 5. Goto step 1
 
 ---
+# DEMO TIME
+
+![bg right](img/cat_typing.gif)
+
+
+---
 ## Hello, ContainerTools
 
 Container declarative syntax can be error prone and it's static. The library provide a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.
