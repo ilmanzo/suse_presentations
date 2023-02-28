@@ -154,5 +154,3 @@ cons:
 
 ![bg right fit](img/opensuse-logo-color.svg)
 
-
-
