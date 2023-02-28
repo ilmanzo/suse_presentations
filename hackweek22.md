@@ -14,10 +14,10 @@ theme: default
 ---
 ## Project scope and purpose
 
-- Practice with Nim advanced features like macros and metaprogramming
+- **Practice** with Nim advanced features like macros and metaprogramming
 - Play with container technology
 - Develop a POC that can be expanded for future cases
-- Use TDD methodology to design and develop
+- Use Test Driven Development methodology to design and develop code
 - Have fun and try out something different
 
 ---
@@ -34,7 +34,7 @@ theme: default
 - Decentralised package management
 - trivia: openSUSE has *"first-class support"* for the Nim language [(phoronix)](https://www.phoronix.com/news/openSUSE-First-Class-Nim)
 
-feel free to join `#discuss-nim` on slack 
+feel free to join `#discuss-nim` slack channel
 
 ---
 ## Test Driven Design/Development
@@ -91,10 +91,9 @@ we can also import an "existing" Containerfile and check it for errors, suggest 
 ---
 ## How can useful for SUSE ?
 
-- writing declarative YAML is getting more and more common (from Dockerfile to K8s to CI actions, to openQA schedules) but get tedious and error-prone
-- having the support of a strong typed compiler and tools helps to increase flexibility and reduce human errors
-- The tool can be reversed as a linter: import/parse an existing declarative definition (from customer ?) and give hints about possible optimizations or security issues
-
+- Writing declarative YAML is getting more and more common (from Dockerfile to K8s to CI actions, to openQA schedules) but get tedious and error-prone
+- Having the support of a strong typed compiler and tools helps to increase flexibility and reduce human errors
+- The tool can be reversed as a **linter**: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues
 
 ---
 
