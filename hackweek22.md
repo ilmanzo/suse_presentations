@@ -43,15 +43,9 @@ feel free to join `#discuss-nim` slack channel
 
 1. Think of a feature
 2. Write a failing test
-3. Write enough code for passing the test
+3. Write just enough code to pass the test
 4. Refactor
 5. Goto step 1
-
----
-# DEMO TIME
-
-![bg right](img/cat_typing.gif)
-
 
 ---
 ## Hello, ContainerTools
@@ -71,7 +65,7 @@ image.build
 Library is published on official nimble package directory: https://nimble.directory/pkg/containertools
 
 ---
-## a more complex example
+## A more complex example
 
 ```nim
 import std/[strformat, times]
@@ -89,7 +83,7 @@ for distro in ["leap","tumbleweed"]:
 we can also import an "existing" Containerfile and check it for errors, suggest optimizations and fix security issues
 
 ---
-## How can useful for SUSE ?
+## How can it be useful for SUSE ?
 
 - Writing declarative YAML is getting more and more common (from Dockerfile to K8s to CI actions, to openQA schedules) but get tedious and error-prone
 - Having the support of a strong typed compiler and tools helps to increase flexibility and reduce human errors
