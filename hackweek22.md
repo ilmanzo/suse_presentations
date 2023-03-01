@@ -34,8 +34,6 @@ theme: default
 - Decentralised package management
 - trivia: openSUSE has *"first-class support"* for the Nim language [(phoronix)](https://www.phoronix.com/news/openSUSE-First-Class-Nim)
 
-feel free to join `#discuss-nim` slack channel
-
 ---
 ## Test Driven Design/Development
 
@@ -50,7 +48,7 @@ feel free to join `#discuss-nim` slack channel
 ---
 ## Hello, ContainerTools
 
-Container declarative syntax can be error prone and it's static. The library provide a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.
+Container declarative syntax is static and can be error prone. The library provides a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.
 
 ```nim
 import containertools
@@ -65,7 +63,27 @@ image.build
 Library is published on official nimble package directory: https://nimble.directory/pkg/containertools
 
 ---
-## A more complex example
+### Static typechecking safety ...
+
+```nim
+# oops, we did an error. Can you spot it ?
+import containertools
+let image = container:
+    FROM nginx
+    COPY index.html /usr/share/nginx/html
+    EXPOSE 8O8O
+    CMD ["nginx", "-g", "daemon off;"]
+image.save "Containerfile"
+image.build  
+```
+### ... ensured by the compiler
+
+```bash
+$ nim compile
+error.nim(6, 13) Error: invalid token. Expected a numeric value
+```
+---
+## Declarative syntax with embedded logic
 
 ```nim
 import std/[strformat, times]
@@ -83,11 +101,11 @@ for distro in ["leap","tumbleweed"]:
 we can also import an "existing" Containerfile and check it for errors, suggest optimizations and fix security issues
 
 ---
-## How can it be useful for SUSE ?
+# How can it be useful for SUSE ?
 
-- Writing declarative YAML is getting more and more common (from Dockerfile to K8s to CI actions, to openQA schedules) but get tedious and error-prone
-- Having the support of a strong typed compiler and tools helps to increase flexibility and reduce human errors
-- The tool can be reversed as a **linter**: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues
+###  Writing declarative YAML is getting more and more common (`Dockerfile`,`K8S` definitions, `CI actions`, to `openQA schedules`) but as they grow, they get tedious to maintain and error-prone
+- Having the support of a strong typed compiler and tooling helps to increase flexibility, modularity and reduce human errors
+- The library can function as a **linter**: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues
 
 ---
 
