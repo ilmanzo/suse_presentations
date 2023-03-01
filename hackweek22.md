@@ -35,7 +35,7 @@ theme: default
 - trivia: openSUSE has *"first-class support"* for the Nim language [(phoronix)](https://www.phoronix.com/news/openSUSE-First-Class-Nim)
 
 ---
-## Test Driven Design/Development
+#### Whole project was developed using **Test Driven Design/Development** process
 
 ![bg right fit](img/kaizenko-Test-Driven-Development-TDD.png)
 
@@ -103,7 +103,7 @@ we can also import an "existing" Containerfile and check it for errors, suggest 
 ---
 # How can it be useful for SUSE ?
 
-###  Writing declarative YAML is getting more and more common (`Dockerfile`,`K8S` definitions, `CI actions`, to `openQA schedules`) but as they grow, they get tedious to maintain and error-prone
+###  Writing declarative YAML is getting more and more common (`Dockerfiles`,`K8S` definitions, `CI actions`, `openQA schedules`) but as the size grows, they get tedious to maintain and error-prone
 - Having the support of a strong typed compiler and tooling helps to increase flexibility, modularity and reduce human errors
 - The library can function as a **linter**: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues
 
