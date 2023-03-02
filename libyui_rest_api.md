@@ -93,6 +93,8 @@ or with `sudo virsh net-dhcp-leases --network default`
 ---
 ## test module in practice
 
+... from [this](https://github.com/os-autoinst/os-autoinst-distri-opensuse/blob/90d76e772bb0fd5100e51caa8be8cac29612cbf1/tests/installation/welcome.pm#L58) ...to this:
+
 [installation/product_selection/install_SLES.pm](https://github.com/os-autoinst/os-autoinst-distri-opensuse/blob/master/tests/installation/product_selection/install_SLES.pm)
 
 ```perl
