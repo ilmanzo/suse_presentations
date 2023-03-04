@@ -18,10 +18,11 @@
 <h2>Project scope and purpose</h2>
 <ul>
 <li><strong>Practice</strong> with Nim advanced features like macros and metaprogramming</li>
-<li>Play with container technology</li>
+<li>Play with <strong>container</strong> technology</li>
 <li>Develop a POC that can be expanded for future cases</li>
-<li>Use Test Driven Development methodology to design and develop code</li>
+<li>Use <strong>Test Driven Development</strong> methodology to design and develop code</li>
 <li>Have fun and try out something different</li>
+<li><strong>Publish</strong> on official nimble package directory: <a href="https://nimble.directory/pkg/containertools">https://nimble.directory/pkg/containertools</a></li>
 </ul>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
@@ -53,7 +54,7 @@
 </section>
 </foreignObject><foreignObject width="1280" height="720" data-marpit-advanced-background="pseudo"><section data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="4" data-marpit-pagination-total="10" style="" data-marpit-advanced-background="pseudo" data-marpit-advanced-background-split="right"></section></foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="5" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="5" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
 <h2>Hello, ContainerTools</h2>
-<p>Container declarative syntax is static and can be error prone. The library provides a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.</p>
+<p>Containerfile declarative syntax is static and can be error prone. The library provides a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.</p>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-nim"><span class="hljs-keyword">import</span> containertools
 <span class="hljs-keyword">let</span> image = container:
     <span class="hljs-type">FROM</span> <span class="hljs-string">&quot;opensuse/leap&quot;</span>
@@ -62,13 +63,11 @@
 image.save <span class="hljs-string">&quot;Containerfile&quot;</span>
 image.build  
 </code></pre>
-<p>Library is published on official nimble package directory: <a href="https://nimble.directory/pkg/containertools">https://nimble.directory/pkg/containertools</a></p>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="6" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="6" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
 <h3>Static typechecking safety ...</h3>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-nim"><span class="hljs-comment"># oops, we did an error. Can you spot it ?</span>
-<span class="hljs-keyword">import</span> containertools
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-nim"><span class="hljs-keyword">import</span> containertools
 <span class="hljs-keyword">let</span> image = container:
     <span class="hljs-type">FROM</span> nginx
     <span class="hljs-type">COPY</span> index.html /usr/share/nginx/html
@@ -77,6 +76,7 @@ image.build
 image.save <span class="hljs-string">&quot;Containerfile&quot;</span>
 image.build  
 </code></pre>
+<h2>oops, we did an error. Can you spot it ?</h2>
 <h3>... ensured by the compiler</h3>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">$ nim compile
 error.nim(6, 13) Error: invalid token. Expected a numeric value
@@ -84,7 +84,7 @@ error.nim(6, 13) Error: invalid token. Expected a numeric value
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="7" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
-<h2>Declarative syntax with embedded logic</h2>
+<h3>Declarative syntax with benefits of variables and control-flow logic</h3>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-nim"><span class="hljs-keyword">import</span> std/[strformat, times]
 <span class="hljs-keyword">import</span> containertools
 
@@ -102,10 +102,10 @@ error.nim(6, 13) Error: invalid token. Expected a numeric value
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="8" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
 <h1>How can it be useful for SUSE ?</h1>
-<h3>Writing declarative YAML is getting more and more common (<code>Dockerfiles</code>,<code>K8S</code> definitions, <code>CI actions</code>, <code>openQA schedules</code>) but as the size grows, they get tedious to maintain and error-prone</h3>
+<h3>Writing declarative files (YAML?) is getting more and more common (<code>Dockerfiles</code>,<code>K8S</code> definitions, <code>CI actions</code>, <code>openQA schedules</code>) but as the size grows, they get tedious to maintain and error-prone</h3>
 <ul>
 <li>Having the support of a strong typed compiler and tooling helps to increase flexibility, modularity and reduce human errors</li>
-<li>The library can function as a <strong>linter</strong>: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues</li>
+<li>The library can also work as a <strong>linter</strong>: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues</li>
 </ul>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>

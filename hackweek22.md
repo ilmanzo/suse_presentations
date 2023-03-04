@@ -15,10 +15,12 @@ theme: default
 ## Project scope and purpose
 
 - **Practice** with Nim advanced features like macros and metaprogramming
-- Play with container technology
+- Play with **container** technology
 - Develop a POC that can be expanded for future cases
-- Use Test Driven Development methodology to design and develop code
+- Use **Test Driven Development** methodology to design and develop code
 - Have fun and try out something different
+- **Publish** on official nimble package directory: https://nimble.directory/pkg/containertools
+
 
 ---
 ## the Nim programming language
@@ -48,7 +50,7 @@ theme: default
 ---
 ## Hello, ContainerTools
 
-Container declarative syntax is static and can be error prone. The library provides a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.
+Containerfile declarative syntax is static and can be error prone. The library provides a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.
 
 ```nim
 import containertools
@@ -60,13 +62,11 @@ image.save "Containerfile"
 image.build  
 ```
 
-Library is published on official nimble package directory: https://nimble.directory/pkg/containertools
 
 ---
 ### Static typechecking safety ...
 
 ```nim
-# oops, we did an error. Can you spot it ?
 import containertools
 let image = container:
     FROM nginx
@@ -76,6 +76,9 @@ let image = container:
 image.save "Containerfile"
 image.build  
 ```
+
+## oops, we did an error. Can you spot it ?
+
 ### ... ensured by the compiler
 
 ```bash
@@ -83,7 +86,7 @@ $ nim compile
 error.nim(6, 13) Error: invalid token. Expected a numeric value
 ```
 ---
-## Declarative syntax with embedded logic
+### Declarative syntax with benefits of variables and control-flow logic
 
 ```nim
 import std/[strformat, times]
@@ -103,9 +106,9 @@ we can also import an "existing" Containerfile and check it for errors, suggest 
 ---
 # How can it be useful for SUSE ?
 
-###  Writing declarative YAML is getting more and more common (`Dockerfiles`,`K8S` definitions, `CI actions`, `openQA schedules`) but as the size grows, they get tedious to maintain and error-prone
+###  Writing declarative files (YAML?) is getting more and more common (`Dockerfiles`,`K8S` definitions, `CI actions`, `openQA schedules`) but as the size grows, they get tedious to maintain and error-prone
 - Having the support of a strong typed compiler and tooling helps to increase flexibility, modularity and reduce human errors
-- The library can function as a **linter**: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues
+- The library can also work as a **linter**: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues
 
 ---
 
