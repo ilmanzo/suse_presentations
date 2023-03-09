@@ -22,7 +22,7 @@
 <li>Develop a POC that can be expanded for future cases</li>
 <li>Use <strong>Test Driven Development</strong> methodology to design and develop code</li>
 <li>Have fun and try out something different</li>
-<li><strong>Publish</strong> on official nimble package directory: <a href="https://nimble.directory/pkg/containertools">https://nimble.directory/pkg/containertools</a></li>
+<li><strong>Publish</strong> something on official nimble package directory: <a href="https://nimble.directory/pkg/containertools">https://nimble.directory/pkg/containertools</a></li>
 </ul>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
@@ -38,6 +38,7 @@
 <li>Decentralised package management</li>
 <li>trivia: openSUSE has <em>&quot;first-class support&quot;</em> for the Nim language <a href="https://www.phoronix.com/news/openSUSE-First-Class-Nim">(phoronix)</a></li>
 </ul>
+<p>Feel free to join <code>#discuss-nim</code> slack channel</p>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="4" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;--marpit-advanced-background-split:50%;" data-marpit-advanced-background="background" data-marpit-advanced-background-split="right"><div data-marpit-advanced-background-container="true" data-marpit-advanced-background-direction="horizontal"><figure style="background-image:url(&quot;img/kaizenko-Test-Driven-Development-TDD.png&quot;);background-size:contain;"></figure></div></section></foreignObject><foreignObject width="50%" height="720"><section id="4" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="4" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;--marpit-advanced-background-split:50%;" data-marpit-advanced-background="content" data-marpit-advanced-background-split="right">
@@ -47,14 +48,14 @@
 <li>Think of a feature</li>
 <li>Write a failing test</li>
 <li>Write just enough code to pass the test</li>
-<li>Refactor</li>
+<li>Refactor when needed</li>
 <li>Goto step 1</li>
 </ol>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
 </foreignObject><foreignObject width="1280" height="720" data-marpit-advanced-background="pseudo"><section data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="4" data-marpit-pagination-total="10" style="" data-marpit-advanced-background="pseudo" data-marpit-advanced-background-split="right"></section></foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="5" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="5" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
 <h2>Hello, ContainerTools</h2>
-<p>Containerfile declarative syntax is static and can be error prone. The library provides a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.</p>
+<p><code>Containerfile</code> declarative syntax is static and can be error prone. The library provides a <strong>DSL</strong> (Domain Specific Language) that enables a dynamic behaviour, while the strict checking of the Nim compiler ensure correctness.</p>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-nim"><span class="hljs-keyword">import</span> containertools
 <span class="hljs-keyword">let</span> image = container:
     <span class="hljs-type">FROM</span> <span class="hljs-string">&quot;opensuse/leap&quot;</span>
@@ -69,22 +70,22 @@ image.build
 <h3>Static typechecking safety ...</h3>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-nim"><span class="hljs-keyword">import</span> containertools
 <span class="hljs-keyword">let</span> image = container:
-    <span class="hljs-type">FROM</span> nginx
-    <span class="hljs-type">COPY</span> index.html /usr/share/nginx/html
-    <span class="hljs-type">EXPOSE</span> <span class="hljs-number">8</span>O8O
-    <span class="hljs-type">CMD</span> [<span class="hljs-string">&quot;nginx&quot;</span>, <span class="hljs-string">&quot;-g&quot;</span>, <span class="hljs-string">&quot;daemon off;&quot;</span>]
+   <span class="hljs-type">FROM</span> nginx
+   <span class="hljs-type">COPY</span> index.html /usr/share/nginx/html
+   <span class="hljs-type">EXPOSE</span> <span class="hljs-number">8</span>O8O
+   <span class="hljs-type">CMD</span> [<span class="hljs-string">&quot;nginx&quot;</span>, <span class="hljs-string">&quot;-g&quot;</span>, <span class="hljs-string">&quot;daemon off;&quot;</span>]
 image.save <span class="hljs-string">&quot;Containerfile&quot;</span>
 image.build  
 </code></pre>
-<h2>oops, we did an error. Can you spot it ?</h2>
+<p><em>oops, we did an error. Can you spot it ?</em></p>
 <h3>... ensured by the compiler</h3>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">$ nim compile
-error.nim(6, 13) Error: invalid token. Expected a numeric value
+error.nim(5, 11) Error: invalid token. Expected a numeric value
 </code></pre>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="7" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
-<h3>Declarative syntax with benefits of variables and control-flow logic</h3>
+<h3>Easiness of declarative syntax ...</h3>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-nim"><span class="hljs-keyword">import</span> std/[strformat, times]
 <span class="hljs-keyword">import</span> containertools
 
@@ -97,7 +98,8 @@ error.nim(6, 13) Error: invalid token. Expected a numeric value
     image.save <span class="hljs-string">&quot;Containerfile.&quot;</span> &amp; distro
     image.build
 </code></pre>
-<p>we can also import an &quot;existing&quot; Containerfile and check it for errors, suggest optimizations and fix security issues</p>
+<h3>... with the power of a programming language</h3>
+<p>we can also import an &quot;existing&quot; <code>Containerfile</code> and check it for errors, suggest optimizations and fix security issues</p>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="8" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
@@ -112,11 +114,11 @@ error.nim(6, 13) Error: invalid token. Expected a numeric value
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="9" data-paginate="true" data-footer="andrea.manzini@suse.com" data-theme="default" data-marpit-pagination="9" data-marpit-pagination-total="10" style="--paginate:true;--footer:andrea.manzini@suse.com;--theme:default;">
 <h2>Lessons taken</h2>
 <ul>
-<li>having a good testsuite gives you freedom to a fearless refactor</li>
-<li>TDD lets you think from the users perspective</li>
+<li>having a good testsuite gives you freedom to a fearless refactor. During the design phase I used the growing test suite as a platform to try out new ideas</li>
+<li>TDD lets you think from the user's perspective</li>
 <li>Metaprogramming can be hard but is very powerful and expressive</li>
-<li>Choice of license is also important</li>
-<li>Examples and documentation are as important as a good working code</li>
+<li>It's always OSS, but choice of license is also important</li>
+<li>Examples and documentation are not an optional</li>
 </ul>
 <footer><a href="mailto:andrea.manzini@suse.com">andrea.manzini@suse.com</a></footer>
 </section>

@@ -19,7 +19,7 @@ theme: default
 - Develop a POC that can be expanded for future cases
 - Use **Test Driven Development** methodology to design and develop code
 - Have fun and try out something different
-- **Publish** on official nimble package directory: https://nimble.directory/pkg/containertools
+- **Publish** something on official nimble package directory: https://nimble.directory/pkg/containertools
 
 
 ---
@@ -36,6 +36,8 @@ theme: default
 - Decentralised package management
 - trivia: openSUSE has *"first-class support"* for the Nim language [(phoronix)](https://www.phoronix.com/news/openSUSE-First-Class-Nim)
 
+Feel free to join `#discuss-nim` slack channel 
+
 ---
 #### Whole project was developed using **Test Driven Design/Development** process
 
@@ -44,13 +46,13 @@ theme: default
 1. Think of a feature
 2. Write a failing test
 3. Write just enough code to pass the test
-4. Refactor
+4. Refactor when needed
 5. Goto step 1
 
 ---
 ## Hello, ContainerTools
 
-Containerfile declarative syntax is static and can be error prone. The library provides a DSL that enables a dynamic behaviour, while the Nim compiler ensure correctness.
+`Containerfile` declarative syntax is static and can be error prone. The library provides a **DSL** (Domain Specific Language) that enables a dynamic behaviour, while the strict checking of the Nim compiler ensure correctness.
 
 ```nim
 import containertools
@@ -69,24 +71,24 @@ image.build
 ```nim
 import containertools
 let image = container:
-    FROM nginx
-    COPY index.html /usr/share/nginx/html
-    EXPOSE 8O8O
-    CMD ["nginx", "-g", "daemon off;"]
+   FROM nginx
+   COPY index.html /usr/share/nginx/html
+   EXPOSE 8O8O
+   CMD ["nginx", "-g", "daemon off;"]
 image.save "Containerfile"
 image.build  
 ```
 
-## oops, we did an error. Can you spot it ?
+*oops, we did an error. Can you spot it ?*
 
 ### ... ensured by the compiler
 
 ```bash
 $ nim compile
-error.nim(6, 13) Error: invalid token. Expected a numeric value
+error.nim(5, 11) Error: invalid token. Expected a numeric value
 ```
 ---
-### Declarative syntax with benefits of variables and control-flow logic
+### Easiness of declarative syntax ...
 
 ```nim
 import std/[strformat, times]
@@ -101,7 +103,9 @@ for distro in ["leap","tumbleweed"]:
     image.save "Containerfile." & distro
     image.build
 ```
-we can also import an "existing" Containerfile and check it for errors, suggest optimizations and fix security issues
+### ... with the power of a programming language 
+
+we can also import an "existing" `Containerfile` and check it for errors, suggest optimizations and fix security issues
 
 ---
 # How can it be useful for SUSE ?
@@ -114,11 +118,11 @@ we can also import an "existing" Containerfile and check it for errors, suggest 
 
 ## Lessons taken
 
-- having a good testsuite gives you freedom to a fearless refactor
-- TDD lets you think from the users perspective
+- having a good testsuite gives you freedom to a fearless refactor. During the design phase I used the growing test suite as a platform to try out new ideas
+- TDD lets you think from the user's perspective
 - Metaprogramming can be hard but is very powerful and expressive
-- Choice of license is also important
-- Examples and documentation are as important as a good working code
+- It's always OSS, but choice of license is also important
+- Examples and documentation are not an optional
 
 ---
 # Thank you!
