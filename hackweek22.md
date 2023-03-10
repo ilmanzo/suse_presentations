@@ -14,7 +14,7 @@ theme: default
 ---
 ## Project scope and purpose
 
-- **Practice** with Nim advanced features like macros and metaprogramming
+- **Practice** with Nim's advanced features: **macros** and *metaprogramming*
 - Play with **container** technology
 - Develop a POC that can be expanded for future cases
 - Use **Test Driven Development** methodology to design and develop code
@@ -23,10 +23,9 @@ theme: default
 
 
 ---
-## the Nim programming language
+## What's the Nim programming language ?
 
 # Efficient, expressive, elegant
-
 
 [Nim](https://nim-lang.org/) is a statically typed compiled systems programming language.
 - Intuitive and clean syntax, inspired from Python, Ada and Modula.
@@ -39,15 +38,21 @@ theme: default
 Feel free to join `#discuss-nim` slack channel 
 
 ---
-#### Whole project was developed using **Test Driven Design/Development** process
+## A plain, old Containerfile
 
-![bg right fit](img/kaizenko-Test-Driven-Development-TDD.png)
+`Containerfile` is a plain text file with a simple sintax, composed of instructions that specifies how to create a container image.
 
-1. Think of a feature
-2. Write a failing test
-3. Write just enough code to pass the test
-4. Refactor when needed
-5. Goto step 1
+```Docker
+   FROM nginx
+   COPY index.html /usr/share/nginx/html
+   EXPOSE 8O8O
+   CMD ["nginx", "-g", "daemon off;"]
+```
+While effective, it has some issues:
+- no syntax checking until build/runtime (which usually happens in a CI)
+- only static values, cannot have any logic or variable
+
+
 
 ---
 ## Hello, ContainerTools
@@ -63,6 +68,7 @@ let image = container:
 image.save "Containerfile"
 image.build  
 ```
+
 
 
 ---
@@ -81,7 +87,7 @@ image.build
 
 *oops, we did an error. Can you spot it ?*
 
-### ... ensured by the compiler
+### ... ensured by the compiler / IDE tooling
 
 ```bash
 $ nim compile
@@ -108,21 +114,34 @@ for distro in ["leap","tumbleweed"]:
 we can also import an "existing" `Containerfile` and check it for errors, suggest optimizations and fix security issues
 
 ---
-# How can it be useful for SUSE ?
+# How can it be useful for you @ SUSE ?
 
-###  Writing declarative files (YAML?) is getting more and more common (`Dockerfiles`,`K8S` definitions, `CI actions`, `openQA schedules`) but as the size grows, they get tedious to maintain and error-prone
+###  Writing declarative files (YAML?) is getting more and more common (`Dockerfiles`,`K8S` definitions, `CI actions`, `openQA schedules`) 
+
+- As the size grows, they get tedious to maintain and error-prone
 - Having the support of a strong typed compiler and tooling helps to increase flexibility, modularity and reduce human errors
 - The library can also work as a **linter**: import/parse an existing declarative definition (provided from customer ?) and give hints about possible optimizations or security issues
+
+---
+#### Whole project was developed using TDD 
+
+![bg right fit](img/kaizenko-Test-Driven-Development-TDD.png)
+
+1. Think of a feature
+2. Write a failing test
+3. Write just enough code to pass the test
+4. Refactor when needed
+5. Goto step 1
 
 ---
 
 ## Lessons taken
 
-- having a good testsuite gives you freedom to a fearless refactor. During the design phase I used the growing test suite as a platform to try out new ideas
+- Having a good testsuite gives you freedom to a fearless refactor. During the design phase I used the growing test suite as a platform to try out new ideas
 - TDD lets you think from the user's perspective
 - Metaprogramming can be hard but is very powerful and expressive
-- It's always OSS, but choice of license is also important
-- Examples and documentation are not an optional
+- Good code is important, but examples and documentation are **fundamental** 
+- Choice of OSS license is also important
 
 ---
 # Thank you!
