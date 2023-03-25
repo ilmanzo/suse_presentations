@@ -40,7 +40,7 @@ Feel free to join `#discuss-nim` slack channel
 ---
 ## A plain, old Containerfile
 
-`Containerfile` is a plain text file with a simple sintax, composed of instructions that specifies how to create a container image.
+`Containerfile` is a plain text file with a simple syntax, composed of instructions that specifies how to create a container image.
 
 ```Docker
    FROM nginx
