@@ -13,6 +13,8 @@ theme: default
 ---
 # Why ? I like my old tools!
 
+## ... and they work flawlessly 😠
+
 - New users use them on other platforms, maybe you want to know what's around
 - Totally optional, use at your own pace. Nothing disappears installing them
 - Good OSS projects, small enough to start contributing in a new programming language (also because they may lack features that unix veterans can bring in 😉) 
@@ -22,9 +24,9 @@ theme: default
 ---
 # And of course...
 
-##  ... because there's a cute mascot
+##  ... because there's a cute mascot 
 
-![bg right fit](img/ferris.png)
+![bg right fit](img/cuddlyferris.svg)
 
 ---
 ## The tools 1/2
