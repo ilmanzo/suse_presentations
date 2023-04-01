@@ -11,11 +11,25 @@ theme: default
 ![bg left fit](img/opensuse-logo-color.svg)
 
 ---
+# Brace yourself
+
+## We are going to replace 
+- `cat`
+- `find`
+- `grep`
+- `ps`
+- `time`
+- `PS1`
+
+![bg right fit](img/screaming_cropped-scaled.jpg)
+
+---
 # Why ? I like my old tools!
 
 ## ... and they work flawlessly 😠
 
-- New users use them on other platforms, maybe you want to know what's around
+- Freedom of choice is one pillar of Free Software
+- New users use them on other platforms, maybe you want to know what those young hipsters mess around with 🤓
 - Totally optional, use at your own pace. Nothing disappears installing them
 - Good OSS projects, small enough to start contributing in a new programming language (also because they may lack features that unix veterans can bring in 😉) 
 - Why not ? Trying something new won't hurt
