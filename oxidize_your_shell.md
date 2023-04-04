@@ -28,7 +28,7 @@ theme: default
 
 ## ... and they work flawlessly 😠
 
-- Freedom of choice is one pillar of Free Software
+- One pillar of Free Software: freedom of choice! 
 - New users use them on other platforms, maybe you want to know what those young hipsters mess around with 🤓
 - Totally optional, use at your own pace. Nothing disappears installing them
 - Good OSS projects, small enough to start contributing in a new programming language (also because they may lack features that unix veterans can bring in 😉) 
