@@ -46,7 +46,7 @@ theme: default
 ## The tools 1/2
 
 1. [bat](https://github.com/sharkdp/bat) 🦇 
-an alternative to `cat` , with syntax highlighting and `git` integration. Shows non-printable characters and has a tree-mode
+an alternative to `cat` , with syntax highlighting and `git` integration. Shows non-printable characters
 2. [procs](https://github.com/dalance/procs)
 a modern replacement for `ps`: colored output, integrate filtering and paging
 3. [fd](https://github.com/sharkdp/fd) a simple, fast and user-friendly alternative to `find`. Smart case, colored output, `.gitignore` integration, parallel command execution
