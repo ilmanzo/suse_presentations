@@ -28,8 +28,8 @@ theme: default
 
 ## ... and they work flawlessly 😠
 
-- One pillar of Free Software: freedom of choice! 
-- New users use them on other platforms, maybe you want to know what those young hipsters mess around with 🤓
+- A pillar of free software: diversity, richness, freedom of choice... The [Bazaar](http://www.catb.org/~esr/writings/cathedral-bazaar/)! 
+- New users use them on other platforms, maybe you want to know what those foolish young hipsters mess around with 🤓
 - Totally optional, use at your own pace. Nothing disappears installing them
 - Good OSS projects, small enough to start contributing in a new programming language (also because they may lack features that unix veterans can bring in 😉) 
 - Why not ? Trying something new won't hurt
@@ -38,7 +38,7 @@ theme: default
 ---
 # And of course...
 
-##  ... because there's a cute mascot 
+##  ... because there's a cute mascot like Ferris the crab
 
 ![bg right fit](img/cuddlyferris.svg)
 
