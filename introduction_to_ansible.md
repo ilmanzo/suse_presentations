@@ -138,13 +138,13 @@ localhost | SUCCESS => {
 }
 ```
 
-this means that Ansible is correctly installed and working. `-m` stands for "use this module" 
+this means that Ansible is correctly installed and working. `-m` stands for "use this module". The `ping` module does not **change** anything on the host, it simply reply back to test the communication.
 
 ---
 # Ansible Basic Terminology
 
-- **Task** : An action to perform
-- **Play** : a collection of tasks
+- **Task** : A single action to perform
+- **Play** : A collection of tasks
 - **Playbook** : YAML file containing one or more plays
 
 ![Workflow](img/ansible-workflow.png "Ansible Workflow")
@@ -155,7 +155,7 @@ PLAYBOOK EXAMPLE: INSTALL & CONFIGURE APACHE WEBSERVER
 ```yaml
 # begin of playbook
 --- 
-- name: play to install and start apache
+- name: first play to install and start apache
   hosts: localhost
   connection: local
   become: yes
@@ -166,7 +166,7 @@ PLAYBOOK EXAMPLE: INSTALL & CONFIGURE APACHE WEBSERVER
       systemd:
         state: started
         name: apache2
-- name: Include a play after another play
+- name: second play, includes another play from a file
   ansible.builtin.import_playbook: otherplays.yaml        
 # end of playbook
 ```
@@ -211,6 +211,36 @@ A inventory can contain many groups of hosts and associate variables to the grou
 The inventory can be made dynamic, user can provide a script that outputs list of machines (there are some already made for most cloud providers)
 
 ---
+SIMPLE INVENTORY EXAMPLE
+
+```ini
+machine-debug.example.suse.de
+another_server-1.example.suse.de
+
+[virtual_machines]
+openqa-worker1.example.suse.asia
+srv01.example.suse.asia
+srv02.example.suse.asia
+srv03.example.suse.asia
+srv04.example.suse.asia
+srv05.example.suse.asia
+
+[baremetal]
+baremetal1.example.suse.de
+baremetal2.example.suse.de
+
+[asia]
+openqa-worker1.example.suse.asia
+srv0[1-5].example.suse.asia
+
+[europe]
+machine-debug.example.suse.de
+baremetal[1-2].example.suse.de
+another_server-1.example.suse.de
+```
+
+
+---
 INVENTORY EXAMPLE with GROUP VARS
 
 ```ini
@@ -244,9 +274,6 @@ Sometimes you want a task to run only when a change is made on a machine. For ex
 
 [See documentation example](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html)
 
----
-# Register variables
-
 
 ---
 # Conditionals
@@ -263,9 +290,52 @@ tasks:
 
 [see more example on the documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html)
 
+
+---
+# Register variables
+
+There are many times that you will want to run a command, then use its return code,
+stderr, or stdout to determine whether to run a later task. For these situations, Ansible
+allows you to use register to store the output of a particular command in a variable
+at runtime.
+
+```yaml
+     - name: Run a shell command and register its output as a variable
+       ansible.builtin.shell: /usr/bin/foo
+       register: foo_result
+       ignore_errors: true
+
+     - name: Run a shell command using output of the previous task
+       ansible.builtin.shell: /usr/bin/bar
+       when: foo_result.rc == 5
+```
+
+---
+# When to quote variables (a YAML gotcha)
+
+If you start a value with {{ foo }}, you must quote the whole expression to create valid YAML syntax. 
+
+```yaml
+- hosts: app_servers
+  vars:
+      app_path: {{ base_path }}/myapp
+```
+
+You will see: `ERROR! Syntax Error while loading YAML.` If you add quotes, Ansible works correctly:
+
+```yaml
+- hosts: app_servers
+  vars:
+       app_path: "{{ base_path }}/myapp"
+```
+
 ---
 # Iteration
 
+TODO
+
+
+for details please [see documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html)
 
 --- 
 # Facts
