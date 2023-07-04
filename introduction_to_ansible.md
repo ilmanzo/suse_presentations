@@ -3,6 +3,10 @@ paginate: true
 marp: true
 footer: andrea.manzini@suse.com
 theme: default
+class: 
+#  - invert
+  
+
 ---
 # introduction to Ansible
 
@@ -20,7 +24,7 @@ Automation is the key to speed, consistency, scalability and repeatability.
 Think about car factories in the 1900 vs automated robot industries
 
 ---
-## Benefits of Automation:
+## Benefits of Automation
 
 What does automation enable:
 - Scalability
@@ -265,12 +269,24 @@ nfs_path="11.22.33.44:/folder nfs-server.suse.de:/mnt/myfolder"
 ---
 ## How Ansible talks to hosts ?
 
+By default, Ansible uses native OpenSSH, because it supports ControlPersist (a performance feature), Kerberos, and options in `~/.ssh/config` such as Jump Host setup.
 
+By default, Ansible connects to all remote devices with the user name you are using on the control node. If that user name does not exist on a remote device, you can [set a different user name for the connection](https://docs.ansible.com/ansible/latest/inventory_guide/connection_details.html#setting-a-remote-user).
+
+If you just need to do some tasks as a different user, use [privilege escalation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_privilege_escalation.html#become):
+
+```yaml
+- name: Ensure the httpd service is running
+  service:
+    name: httpd
+    state: started
+  become: true
+```
 
 ---
 # Handlers
 
-Sometimes you want a task to run only when a change is made on a machine. For example, you may want to restart a service if a task updates the configuration of that service, but not if the configuration is unchanged. Ansible uses handlers to address this use case. Handlers are tasks that only run when notified.
+Sometimes you want a task to run only when a change is made on a machine. For example, you may want to restart a service if a task updates the configuration of that service, but not if the configuration is unchanged. Ansible uses handlers to address this use case. __Handlers are tasks that only run when notified.__
 
 [See documentation example](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html)
 
@@ -330,9 +346,35 @@ You will see: `ERROR! Syntax Error while loading YAML.` If you add quotes, Ansib
 ```
 
 ---
-# Iteration
+# Loops / Iteration 1
 
-TODO
+Repeated tasks can be written as standard loops over a simple list of strings. You can define the list directly in the task or keep the values in a variable
+
+```yaml
+- name: Add several users
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: present
+    groups: "developers"
+  loop:
+     - joe
+     - frank
+     - "{{ another_big_list_of_users }}"
+```
+---
+# Loops / Iteration 2
+
+
+You can use the until keyword to retry a task until a certain condition is met. Here’s an example:
+
+```yaml
+- name: Retry a task until a certain condition is met
+  ansible.builtin.shell: /usr/bin/foo
+  register: result
+  until: result.stdout.find("all systems go") != -1
+  retries: 5
+  delay: 10
+```
 
 
 for details please [see documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html)
@@ -340,15 +382,119 @@ for details please [see documentation](https://docs.ansible.com/ansible/latest/p
 --- 
 # Facts
 
+By default, whenever you run an Ansible playbook, Ansible first gathers information
+(“facts”) about each host in the play.
+```
+$ ansible-playbook playbook.yml
+PLAY [group] ********************************************************
+GATHERING FACTS *****************************************************
+ok: [host1]
+ok: [host2]
+ok: [host3]
+```
+
+Facts can be extremely helpful when you’re running playbooks; you can use
+gathered information like host IP addresses, CPU type, disk space, operating system
+information, and network interface information to change when certain tasks are
+run, or to change certain information used in configuration files.
+
+--- 
+# Local Facts
+
+Another way of defining host-specific facts is to place a .fact file in a special
+directory on remote hosts, `/etc/ansible/facts.d/`. These files can be either JSON
+or INI files, or you could use executables that return JSON. As an example, create
+the file `/etc/ansible/facts.d/settings.fact` on a remote host, with the following
+contents:
+```ini
+[users]
+admin=jane,john
+normal=jim
+```
+Next, use Ansible’s setup module to display the new facts on the remote host:
+```bash
+$ ansible hostname -m setup -a "filter=ansible_local"
+```
+---
+# Roles
+
+TODO
+
 
 ---
 # Ansible galaxy
 
+Ansible roles are powerful and flexible; they allow you to encapsulate sets of
+configuration and deployable units of playbooks, variables, templates, and other files,
+so you can easily reuse them across different servers.
+
+It’s annoying to have to start from scratch every time, though; wouldn’t it be better
+if people could share roles for commonly-installed applications and services?
+Enter [Ansible Galaxy](https://galaxy.ansible.com/).
+
+Ansible Galaxy, or just ‘Galaxy’, is a repository of community-contributed Ansible
+content. There are thousands of roles available which can configure and deploy com-
+mon applications, and they’re all available through the ansible-galaxy command.
+
+---
+# Ansible Galaxy
+
+Galaxy offers the ability to add, download, and rate roles. With an account, you can
+contribute your own roles or rate others’ roles (though you don’t need an account to
+use roles).
+
+```bash
+$ ansible-galaxy role install geerlingguy.apache \
+geerlingguy.mysql geerlingguy.php
+```
+---
+# A LAMP server in nine lines of YAML
+
+```yaml
+# file: lamp-setup.yml
+- hosts: all
+  become: yes
+  roles:
+    - geerlingguy.mysql
+    - geerlingguy.apache
+    - geerlingguy.php
+    - geerlingguy.php-mysql
+```
+```bash
+$ ansible-playbook -i path/to/custom-inventory lamp-setup.yml
+```
+
 ---
 # Ansible vault
 
+### Keeping secrets secret
+If you use Ansible to fully automate the provisioning and configuration of your
+servers, chances are you will need to use passwords or other sensitive data for some
+tasks, whether it’s setting a default admin password, synchronizing a private key, or
+authenticating to a remote service.
 
+It’s better to treat passwords and sensitive data specially, and
+there are two primary ways to do this:
 
+1. Use a separate secret management service, such as Vault by HashiCorp,
+Keywhiz by Square, or a hosted service like AWS’s Key Management Service
+or Microsoft Azure’s Key Vault.
+2. Use Ansible Vault, which is built into Ansible and stores encrypted passwords
+and other sensitive data alongside the rest of your playbook.
+
+---
+# Ansible Vault
+
+### How it works:
+Ansible Vault works much like a real-world vault:
+1. You take any YAML file you would normally have in your playbook (e.g. a
+variables file, host vars, group vars, role default vars, or even task includes!),
+and store it in the vault.
+2. Ansible encrypts the vault (‘closes the door’), using a key (a password you set).
+3. You store the key (your vault’s password) separately from the playbook in a
+location only you control or can access.
+4. You use the key to let Ansible decrypt the encrypted vault whenever you run
+your playbook.
 
 ---
 # Thanks!
