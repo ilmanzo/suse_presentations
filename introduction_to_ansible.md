@@ -283,12 +283,47 @@ If you just need to do some tasks as a different user, use [privilege escalation
   become: true
 ```
 
----
-# Handlers
+--- 
+# Facts
 
-Sometimes you want a task to run only when a change is made on a machine. For example, you may want to restart a service if a task updates the configuration of that service, but not if the configuration is unchanged. Ansible uses handlers to address this use case. __Handlers are tasks that only run when notified.__
+By default, whenever you run an Ansible playbook, Ansible first gathers information
+(“facts”) about each host in the play.
+```
+$ ansible-playbook playbook.yml
+PLAY [group] ********************************************************
+GATHERING FACTS *****************************************************
+ok: [host1]
+ok: [host2]
+ok: [host3]
+```
 
-[See documentation example](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html)
+--- 
+# Facts
+
+Facts can be extremely helpful when you’re running playbooks; you can use
+gathered information like host IP addresses, CPU type, disk space, operating system
+information, and network interface information to change when certain tasks are
+run, or to change certain information used in configuration files.
+
+to see all available facts on a system: `$ ansible localhost -m ansible.builtin.setup`
+
+--- 
+# Local Facts
+
+Another way of defining host-specific facts is to place a .fact file in a special
+directory on remote hosts, `/etc/ansible/facts.d/`. These files can be either JSON
+or INI files, or you could use executables that return JSON. As an example, create
+the file `/etc/ansible/facts.d/settings.fact` on a remote host, with the following
+contents:
+```ini
+[users]
+admin=jane,john
+normal=jim
+```
+Next, use Ansible’s setup module to display the new facts on the remote host:
+```bash
+$ ansible hostname -m setup -a "filter=ansible_local"
+```
 
 
 ---
@@ -379,47 +414,80 @@ You can use the until keyword to retry a task until a certain condition is met. 
 
 for details please [see documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html)
 
---- 
-# Facts
 
-By default, whenever you run an Ansible playbook, Ansible first gathers information
-(“facts”) about each host in the play.
-```
-$ ansible-playbook playbook.yml
-PLAY [group] ********************************************************
-GATHERING FACTS *****************************************************
-ok: [host1]
-ok: [host2]
-ok: [host3]
-```
-
-Facts can be extremely helpful when you’re running playbooks; you can use
-gathered information like host IP addresses, CPU type, disk space, operating system
-information, and network interface information to change when certain tasks are
-run, or to change certain information used in configuration files.
-
---- 
-# Local Facts
-
-Another way of defining host-specific facts is to place a .fact file in a special
-directory on remote hosts, `/etc/ansible/facts.d/`. These files can be either JSON
-or INI files, or you could use executables that return JSON. As an example, create
-the file `/etc/ansible/facts.d/settings.fact` on a remote host, with the following
-contents:
-```ini
-[users]
-admin=jane,john
-normal=jim
-```
-Next, use Ansible’s setup module to display the new facts on the remote host:
-```bash
-$ ansible hostname -m setup -a "filter=ansible_local"
-```
 ---
-# Roles
+# Handlers
 
-TODO
+Sometimes you want a task to run only when a change is made on a machine. For example, you may want to restart a service if a task updates the configuration of that service, but not if the configuration is unchanged. Ansible uses handlers to address this use case. __Handlers are tasks that only run when notified.__
 
+[See documentation example](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_handlers.html)
+
+
+---
+# Templating
+
+When we want to refer to some variable content, introduce some logic expressions or provide a file, we can use the **Jinja2** template engine embedded in Ansible. 
+
+A template contains variables and/or expressions, which get replaced with values when a template is rendered; and tags, which control the logic of the template. The template syntax is heavily inspired by Django and Python.
+
+- most common is `{{ }}` for Expressions (emit the template output)
+- there is also `{% %}` for Statements and `{# #}` for Comments
+
+[See template documentation](https://jinja.palletsprojects.com/en/latest/templates/)
+
+---
+# Templating Example
+
+    $ cd ansible_examples
+    $ ansible-playbook -i inventory.txt motd.yml
+    $ cat /tmp/motd
+
+*exercise*: we want to give some control to the user, who can for example change the destination file or include/exclude IPV6 addresses. How can we achieve that ? 
+
+
+
+---
+#### Ansible vault : Keeping secrets secret
+If you use Ansible to fully automate the provisioning and configuration of your
+servers, chances are you will need to use passwords or other sensitive data for some
+tasks, whether it’s setting a default admin password, synchronizing a private key, or authenticating to a remote service.
+
+It’s better to treat passwords and sensitive data specially, and
+there are two primary ways to do this:
+
+1. Use a separate secret management service, such as Vault by HashiCorp,
+Keywhiz by Square, or a hosted service like AWS’s Key Management Service
+or Microsoft Azure’s Key Vault.
+2. Use Ansible Vault, which is built into Ansible and stores encrypted passwords
+and other sensitive data alongside the rest of your playbook.
+
+---
+# Ansible Vault
+
+### How it works:
+Ansible Vault works much like a real-world vault:
+1. You take any YAML file you would normally have in your playbook (e.g. a
+variables file, host vars, group vars, role default vars, or even task includes!),
+and store it in the vault.
+2. Ansible encrypts the vault (‘closes the door’), using a key (a password you set).
+3. You store the key (your vault’s password) separately from the playbook in a
+location only you control or can access.
+4. You use the key to let Ansible decrypt the encrypted vault whenever you run
+your playbook.
+
+
+---
+# What is Ansible roles?
+
+**Roles** are a way to group multiple tasks together into one container to do the automation in very effective manner with clean directory structures.
+
+Roles are set of tasks and additional files for a certain role which allow you to break up the configurations.
+
+It can be easily reuse the codes by anyone if the role is suitable to someone.
+
+It can be easily modify and will reduce the syntax errors.
+
+an example Ansible Role can be to [install a WordPress website](https://github.com/MakarenaLabs/ansible-role-wordpress). It requires a web server, php, a database, the application and some configuration
 
 ---
 # Ansible galaxy
@@ -465,36 +533,18 @@ $ ansible-playbook -i path/to/custom-inventory lamp-setup.yml
 ```
 
 ---
-# Ansible vault
+# Anatomy of a Role
 
-### Keeping secrets secret
-If you use Ansible to fully automate the provisioning and configuration of your
-servers, chances are you will need to use passwords or other sensitive data for some
-tasks, whether it’s setting a default admin password, synchronizing a private key, or
-authenticating to a remote service.
+TODO directory structure
 
-It’s better to treat passwords and sensitive data specially, and
-there are two primary ways to do this:
-
-1. Use a separate secret management service, such as Vault by HashiCorp,
-Keywhiz by Square, or a hosted service like AWS’s Key Management Service
-or Microsoft Azure’s Key Vault.
-2. Use Ansible Vault, which is built into Ansible and stores encrypted passwords
-and other sensitive data alongside the rest of your playbook.
 
 ---
-# Ansible Vault
+# let's look at real use case
 
-### How it works:
-Ansible Vault works much like a real-world vault:
-1. You take any YAML file you would normally have in your playbook (e.g. a
-variables file, host vars, group vars, role default vars, or even task includes!),
-and store it in the vault.
-2. Ansible encrypts the vault (‘closes the door’), using a key (a password you set).
-3. You store the key (your vault’s password) separately from the playbook in a
-location only you control or can access.
-4. You use the key to let Ansible decrypt the encrypted vault whenever you run
-your playbook.
+https://sap-linuxlab.github.io/
+
+TODO find some concrete and easy to follow example in the repo
+
 
 ---
 # Thanks!

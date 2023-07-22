@@ -1,0 +1,4 @@
+Welcome to {{ ansible_facts['hostname'] }}
+{% for ip in ansible_all_ipv4_addresses+ansible_all_ipv6_addresses %}
+I can be reached with this address: {{ ip }}
+{% endfor %}

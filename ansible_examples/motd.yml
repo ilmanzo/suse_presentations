@@ -1,0 +1,8 @@
+---
+- name: Prototype to write a new /etc/motd
+  hosts: all
+  tasks:
+    - ansible.builtin.template:
+        src: templates/motd.j2
+        dest: /tmp/motd
+
