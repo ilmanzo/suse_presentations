@@ -8,7 +8,7 @@ theme: default
 
 ## Agenda
 
-![bg left fit](img/opensuse-logo-color.svg)
+![bg left fit](../img/opensuse-logo-color.svg)
 
 - what's libYUI ?
 - small demo
@@ -68,7 +68,7 @@ or with `sudo virsh net-dhcp-leases --network default`
 ---
 # DEMO TIME
 
-![bg right](img/cat_typing.gif)
+![bg right](../img/cat_typing.gif)
 
 - start installation
 - type at the boot prompt `extend=libyui-rest-api YUI_HTTP_PORT=9999 YUI_HTTP_REMOTE=1 YUI_REUSE_PORT=1`
@@ -154,5 +154,5 @@ cons:
 ---
 # Questions ?
 
-![bg right fit](img/opensuse-logo-color.svg)
+![bg right fit](../img/opensuse-logo-color.svg)
 

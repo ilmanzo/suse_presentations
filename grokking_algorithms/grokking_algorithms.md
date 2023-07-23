@@ -8,7 +8,7 @@ theme: default
 
 ### by [Aditya Y. Bhargava](https://www.adit.io/)
 
-![bg left fit](img/opensuse-logo-color.svg)
+![bg left fit](../img/opensuse-logo-color.svg)
 
 This is not just another book on algorithms but one of the most interesting *books you will ever read on Algorithms and Data structure, particularly for beginners*.
 
@@ -22,7 +22,7 @@ This is not just another book on algorithms but one of the most interesting *boo
 4. Quicksort
 5. Hash Tables
 
-![bg right fit](img/grokking_cover.png)
+![bg right fit](../img/grokking_cover.png)
 
 ---
 ## Table of contents 2/2
@@ -34,7 +34,7 @@ This is not just another book on algorithms but one of the most interesting *boo
 10. K-nearest neighbors
 11. Where to go next
 
-![bg left fit](img/grokking_graph.jpeg)
+![bg left fit](../img/grokking_graph.jpeg)
 
 ---
 ## Some excerpts
@@ -56,5 +56,5 @@ This is not just another book on algorithms but one of the most interesting *boo
 
 These slides are Open Source and live in a [github repository](https://github.com/ilmanzo/suse_presentations), feel free to improve them 💚
 
-![bg right fit](img/opensuse-logo-color.svg)
+![bg right fit](../img/opensuse-logo-color.svg)
 

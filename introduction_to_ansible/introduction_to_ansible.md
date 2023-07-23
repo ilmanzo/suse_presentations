@@ -12,7 +12,7 @@ class:
 
 ## 
 
-![bg left fit](img/opensuse-logo-color.svg)
+![bg left fit](../img/opensuse-logo-color.svg)
 
 ---
 # A little background
@@ -21,7 +21,7 @@ class:
 is about taking manual processes and placing technology around them to make them repeatable.
 Automation is the key to speed, consistency, scalability and repeatability.
 
-Think about car factories in the 1900 vs automated robot industries
+Think about car factories in the 1900 vs modern robot-automated industries!
 
 ---
 ## Benefits of Automation
@@ -151,7 +151,7 @@ this means that Ansible is correctly installed and working. `-m` stands for "use
 - **Play** : A collection of tasks
 - **Playbook** : YAML file containing one or more plays
 
-![Workflow](img/ansible-workflow.png "Ansible Workflow")
+![Workflow](../img/ansible-workflow.png "Ansible Workflow")
 
 ---
 PLAYBOOK EXAMPLE: INSTALL & CONFIGURE APACHE WEBSERVER
@@ -207,12 +207,12 @@ Run multiple tasks (a *playbook*) sequentially
 ---
 # Inventory
 
-Ansible inventory is the list of hosts where we want to apply our recipe. 
+Ansible inventory is the list of hosts where we want to apply our configuration. 
 The simplest inventory is a single file with a list of hosts and groups. The default location for this file is `/etc/ansible/hosts`. You can specify a different inventory file at the command line using the `-i <path>` option or in configuration using inventory.
 
 A inventory can contain many groups of hosts and associate variables to the group or at the host level.
 
-The inventory can be made dynamic, user can provide a script that outputs list of machines (there are some already made for most cloud providers)
+The inventory can be made dynamic, e.g. user can provide a script that outputs list of machines (there are many already made for most cloud providers, cmdb, etc.)
 
 ---
 SIMPLE INVENTORY EXAMPLE
@@ -269,7 +269,7 @@ nfs_path="11.22.33.44:/folder nfs-server.suse.de:/mnt/myfolder"
 ---
 ## How Ansible talks to hosts ?
 
-By default, Ansible uses native OpenSSH, because it supports ControlPersist (a performance feature), Kerberos, and options in `~/.ssh/config` such as Jump Host setup.
+By default, Ansible uses native OpenSSH, because it supports *ControlPersist* (a performance feature), Kerberos, and options in `~/.ssh/config` such as Jump Host setup.
 
 By default, Ansible connects to all remote devices with the user name you are using on the control node. If that user name does not exist on a remote device, you can [set a different user name for the connection](https://docs.ansible.com/ansible/latest/inventory_guide/connection_details.html#setting-a-remote-user).
 
@@ -286,7 +286,7 @@ If you just need to do some tasks as a different user, use [privilege escalation
 --- 
 # Facts
 
-By default, whenever you run an Ansible playbook, Ansible first gathers information
+By default, whenever you run an Ansible playbook, Ansible first gathers some information
 (“facts”) about each host in the play.
 ```
 $ ansible-playbook playbook.yml
@@ -305,12 +305,14 @@ gathered information like host IP addresses, CPU type, disk space, operating sys
 information, and network interface information to change when certain tasks are
 run, or to change certain information used in configuration files.
 
-to see all available facts on a system: `$ ansible localhost -m ansible.builtin.setup`
+to see all available facts on your pc: 
+
+`$ ansible localhost -m ansible.builtin.setup`
 
 --- 
 # Local Facts
 
-Another way of defining host-specific facts is to place a .fact file in a special
+Another way of defining host-specific facts is to place a `.fact` file in a special
 directory on remote hosts, `/etc/ansible/facts.d/`. These files can be either JSON
 or INI files, or you could use executables that return JSON. As an example, create
 the file `/etc/ansible/facts.d/settings.fact` on a remote host, with the following
@@ -325,6 +327,74 @@ Next, use Ansible’s setup module to display the new facts on the remote host:
 $ ansible hostname -m setup -a "filter=ansible_local"
 ```
 
+---
+# Beyond Ad-Hoc commands: playbooks
+
+Since most of the time the activity is not a single command, and Ad-Hoc `ansible` command we used till now are limited to a single task; we can group many tasks together to form a **play**, and many plays to form a **playbook** (and many playbooks to form a **role**)
+
+---
+FROM A BASIC SHELL SCRIPT 
+
+```bash
+# Install Apache.
+zypper install -y apache2
+# Copy configuration files.
+cp my_httpd.conf /etc/apache2/httpd.conf
+# Start Apache and configure it to run at boot.
+systemctl enable apache2.service
+systemctl start apache2.service
+```
+to *run* this:
+`$ sudo ./install-apache.sh`
+
+
+---
+... TO A (CRAPPY) ANSIBLE PLAYBOOK ...
+
+```yaml
+---
+- hosts: all
+  tasks:
+    - name: Install Apache.
+      command: zypper install -y apache2
+    - name: Copy configuration files.
+      command: >
+        cp my_httpd.conf /etc/apache2/httpd.conf
+    - name: Start Apache and configure it to run at boot.
+      command: systemctl enable apache2.service
+    - command: systemctl start apache2.service
+```
+
+to *run* this:
+`$ sudo ansible-playbook install-apache.yml`
+
+question: why this is quite bad practice ? 
+
+---
+... TO A BETTER ONE
+
+```yaml
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Apache.
+      package:
+        name: apache2
+        state: latest
+    - name: Copy configuration files
+      copy:
+        src: my_httpd.conf
+        dest: /etc/apache2/httpd.conf
+        owner: root
+        group: root
+        mode: 0644
+    - name: Make sure Apache is started now and at boot
+      systemd:
+        name: apache2
+        enabled: true
+        state: started
+```
 
 ---
 # Conditionals
@@ -424,6 +494,17 @@ Sometimes you want a task to run only when a change is made on a machine. For ex
 
 
 ---
+# Beyond the basics
+
+- delegation / local actions
+- pauses with `wait_for` or `prompt`
+- error control: `ignore_errors` / `failed_when` 
+- tags
+- blocks 
+- import, include 
+- reboot control
+
+---
 # Templating
 
 When we want to refer to some variable content, introduce some logic expressions or provide a file, we can use the **Jinja2** template engine embedded in Ansible. 
@@ -477,7 +558,7 @@ your playbook.
 
 
 ---
-# What is Ansible roles?
+# What are Ansible roles?
 
 **Roles** are a way to group multiple tasks together into one container to do the automation in very effective manner with clean directory structures.
 
@@ -490,7 +571,7 @@ It can be easily modify and will reduce the syntax errors.
 an example Ansible Role can be to [install a WordPress website](https://github.com/MakarenaLabs/ansible-role-wordpress). It requires a web server, php, a database, the application and some configuration
 
 ---
-# Ansible galaxy
+# Ansible galaxy 1/2
 
 Ansible roles are powerful and flexible; they allow you to encapsulate sets of
 configuration and deployable units of playbooks, variables, templates, and other files,
@@ -505,7 +586,7 @@ content. There are thousands of roles available which can configure and deploy c
 mon applications, and they’re all available through the ansible-galaxy command.
 
 ---
-# Ansible Galaxy
+# Ansible Galaxy 2/2
 
 Galaxy offers the ability to add, download, and rate roles. With an account, you can
 contribute your own roles or rate others’ roles (though you don’t need an account to
@@ -535,8 +616,33 @@ $ ansible-playbook -i path/to/custom-inventory lamp-setup.yml
 ---
 # Anatomy of a Role
 
-TODO directory structure
+a role has only 2 mandatory subfolders:
 
+```
+role_name/
+  meta/
+  tasks/
+```
+
+If you create a directory structure like the one shown above, with a `main.yml` file in
+each directory, Ansible will run all the tasks defined in `tasks/main.yml` if you call
+the role from your playbook using the following syntax:
+
+```yaml
+---
+- hosts: all
+  roles:
+    - role_name
+```
+
+---
+# Role scaffolding
+
+TIP: to easily create the directory structure for a role, we can use
+
+`$ ansible-galaxy role init role_name`
+
+Running this command creates an example role in the current working directory, which you can modify to suit your needs. Using the **init** command also ensures the role is structured correctly in case you want to someday contribute the role to Ansible Galaxy.
 
 ---
 # let's look at real use case
@@ -551,4 +657,4 @@ TODO find some concrete and easy to follow example in the repo
 
 These slides are Open Source and live in a [github repository](https://github.com/ilmanzo/suse_presentations), feel free to improve them 💚
 
-![bg right fit](img/opensuse-logo-color.svg)
+![bg right fit](../img/opensuse-logo-color.svg)

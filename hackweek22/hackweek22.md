@@ -9,7 +9,7 @@ theme: default
 
 ## My [HackWeek-22](https://hackweek.opensuse.org/22/projects/containerfile-slash-dockerfile-generator-library) project
 
-![bg left fit](img/opensuse-logo-color.svg)
+![bg left fit](../img/opensuse-logo-color.svg)
 
 ---
 ## Project scope and purpose
@@ -125,7 +125,7 @@ we can also import an "existing" `Containerfile` and check it for errors, sugges
 ---
 #### Whole project was developed using TDD 
 
-![bg right fit](img/kaizenko-Test-Driven-Development-TDD.png)
+![bg right fit](../img/kaizenko-Test-Driven-Development-TDD.png)
 
 1. Think of a feature
 2. Write a failing test
