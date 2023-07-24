@@ -60,6 +60,17 @@ What does automation enable:
 - Push based
 
 ---
+## A bit of history
+
+- The term "ansible" was coined by Ursula K. Le Guin in her 1966 novel Rocannon's World, and refers to fictional instantaneous communication systems. It was also used in the science fiction novel [Ender's Game](https://en.wikipedia.org/wiki/Ender%27s_Game)
+
+- The Ansible tool was developed by Michael DeHaan, the author of the provisioning server application Cobbler and co-author of the Fedora Unified Network Controller (Func) framework for remote administration.
+
+- Ansible, Inc. (originally AnsibleWorks, Inc.) was the company founded in 2013 by DeHaan, Timothy Gerla, and Saïd Ziouani to commercially support and sponsor Ansible.
+
+- Red Hat acquired Ansible in October 2015
+
+---
 # Idempotency
 
 Configure systems using shell script can be simple and effective, but:
@@ -69,8 +80,6 @@ Configure systems using shell script can be simple and effective, but:
 - they are not repeatable (e.g. **idempotent**)
 
 ### With Ansible we solve this problem by writing the final destination state we want to reach; the tool makes only the necessary changes.
-
-
 
 ---
 ### Idempotency example #1
@@ -149,9 +158,21 @@ localhost | SUCCESS => {
 this means that Ansible is correctly installed and working. `-m` stands for "use this module". The `ping` module does not **change** anything on the host, it simply reply back to test the communication.
 
 ---
+# Modules
+
+[Modules](https://docs.ansible.com/ansible/latest/module_plugin_guide/modules_intro.html) are discrete units of code that can be used from the command line or in a playbook task. Ansible executes each module, usually on the remote managed node, and collects return values. In Ansible 2.10 and later, most modules are hosted in collections.
+
+you can inspect the code being executed, for example the `ping` builtin module lives at
+
+`/usr/lib/python3.11/site-packages/ansible/modules/ping.py`
+
+you can also check out the [Ansible Collection](https://docs.ansible.com/ansible/latest/collections/index.html) contains hundreds of ready-made modules, and it's rather easy to [write your own](https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html) 
+
+
+---
 # Ansible Basic Terminology
 
-- **Task** : A single action to perform
+- **Task** : A single action to perform, e.g. invoke a module with some parameters
 - **Play** : A collection of tasks
 - **Playbook** : YAML file containing one or more plays
 
@@ -190,6 +211,8 @@ PLAYBOOK EXAMPLE: INSTALL & CONFIGURE APACHE WEBSERVER
 ```
 $ ansible localhost -m setup | less
 ```
+
+
 
 ---
 # running Ansible
