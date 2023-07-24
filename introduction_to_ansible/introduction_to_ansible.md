@@ -74,6 +74,15 @@ Configure systems using shell script can be simple and effective, but:
 
 ---
 ### Idempotency example #1
+
+```bash
+$ adduser / useradd -b -u -d -G ... 
+[...other stuff...]
+$ adduser / useradd -b -u -d -G ... 
+ERROR: user 'adam' already exists
+```
+vs 
+
 ```yaml
 # Ensure the user Adam exists in the system
     - name: Add the user 'Adam' with a specific uid and a primary group of 'sudo'
@@ -85,12 +94,7 @@ Configure systems using shell script can be simple and effective, but:
         createhome: yes
         home: /home/users/adamlis    
 ```
-vs 
-```bash
-$ adduser / useradd -b -u -d -G ... 
-$ adduser / useradd -b -u -d -G ... 
-ERROR: user 'adam' already exists
-```
+
 
 ---
 ### Idempotency example #2
@@ -118,7 +122,7 @@ to
 ---
 ## installing Ansible
 
-we will use a development container for our workshop:
+we will use a [development container](https://github.com/containers/toolbox) for our workshop:
 
 ```
 $ toolbox enter
@@ -245,7 +249,7 @@ another_server-1.example.suse.de
 
 
 ---
-INVENTORY EXAMPLE with GROUP VARS
+INVENTORY EXAMPLE with some GROUP VARS
 
 ```ini
 [asia]
@@ -284,7 +288,7 @@ If you just need to do some tasks as a different user, use [privilege escalation
 ```
 
 --- 
-# Facts
+# Facts 1/2
 
 By default, whenever you run an Ansible playbook, Ansible first gathers some information
 (“facts”) about each host in the play.
@@ -298,7 +302,7 @@ ok: [host3]
 ```
 
 --- 
-# Facts
+# Facts 2/2
 
 Facts can be extremely helpful when you’re running playbooks; you can use
 gathered information like host IP addresses, CPU type, disk space, operating system
@@ -314,7 +318,7 @@ to see all available facts on your pc:
 
 Another way of defining host-specific facts is to place a `.fact` file in a special
 directory on remote hosts, `/etc/ansible/facts.d/`. These files can be either JSON
-or INI files, or you could use executables that return JSON. As an example, create
+or INI files, or you could use *executables/scripts* that return JSON. As an example, create
 the file `/etc/ansible/facts.d/settings.fact` on a remote host, with the following
 contents:
 ```ini
@@ -330,10 +334,11 @@ $ ansible hostname -m setup -a "filter=ansible_local"
 ---
 # Beyond Ad-Hoc commands: playbooks
 
-Since most of the time the activity is not a single command, and Ad-Hoc `ansible` command we used till now are limited to a single task; we can group many tasks together to form a **play**, and many plays to form a **playbook** (and many playbooks to form a **role**)
+The Ad-Hoc `ansible` command we used till now are limited to a single task, but most of the time the activity to perform is not a single command.
+We can group many tasks together to form a **play**, and many plays to form a **playbook** (and again many playbooks to form a **role**). Let's say we want to install and configure a web server and start with a basic shell script:
 
 ---
-FROM A BASIC SHELL SCRIPT 
+## FROM A BASIC SHELL SCRIPT 
 
 ```bash
 # Install Apache.
@@ -347,9 +352,10 @@ systemctl start apache2.service
 to *run* this:
 `$ sudo ./install-apache.sh`
 
+*this script has some issues; can you spot them ?*
 
 ---
-... TO A (CRAPPY) ANSIBLE PLAYBOOK ...
+## ... TO A (BAD) ANSIBLE PLAYBOOK ...
 
 ```yaml
 ---
@@ -371,7 +377,7 @@ to *run* this:
 question: why this is quite bad practice ? 
 
 ---
-... TO A BETTER ONE
+## ... TO A BETTER ONE
 
 ```yaml
 ---
@@ -395,23 +401,6 @@ question: why this is quite bad practice ?
         enabled: true
         state: started
 ```
-
----
-# Conditionals
-
-A task can be conditionally executed with the `when:` keyword. 
-
-```yaml
-tasks:
-  - name: Shut down CentOS 6 and Debian 7 systems
-    ansible.builtin.command: /sbin/shutdown -t now
-    when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "6") or
-          (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "7")
-```
-
-[see more example on the documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html)
-
-
 ---
 # Register variables
 
@@ -450,8 +439,26 @@ You will see: `ERROR! Syntax Error while loading YAML.` If you add quotes, Ansib
        app_path: "{{ base_path }}/myapp"
 ```
 
+
 ---
-# Loops / Iteration 1
+# if/then/else conditionals
+
+A task can be conditionally executed with the `when:` keyword. 
+
+```yaml
+tasks:
+  - name: Shut down CentOS 6 and Debian 7 systems
+    ansible.builtin.command: /sbin/shutdown -t now
+    when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "6") or
+          (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "7")
+```
+
+[see more example on the documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html)
+
+
+
+---
+# Loops / Iteration 1/2
 
 Repeated tasks can be written as standard loops over a simple list of strings. You can define the list directly in the task or keep the values in a variable
 
@@ -467,7 +474,7 @@ Repeated tasks can be written as standard loops over a simple list of strings. Y
      - "{{ another_big_list_of_users }}"
 ```
 ---
-# Loops / Iteration 2
+# Loops / Iteration 2/2
 
 
 You can use the until keyword to retry a task until a certain condition is met. Here’s an example:
@@ -497,9 +504,9 @@ Sometimes you want a task to run only when a change is made on a machine. For ex
 # Beyond the basics
 
 - delegation / local actions
-- pauses with `wait_for` or `prompt`
+- manage pauses with `wait_for` or `prompt`
 - error control: `ignore_errors` / `failed_when` 
-- tags
+- tags / filtering
 - blocks 
 - import, include 
 - reboot control

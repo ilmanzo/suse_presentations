@@ -13,6 +13,21 @@ theme: default
 This is not just another book on algorithms but one of the most interesting *books you will ever read on Algorithms and Data structure, particularly for beginners*.
 
 ---
+
+https://substack.com/@johncrickett/note/c-21055693?utm_source=feed-email-digest
+
+```
+Most software developers suck at data structures and algorithms.
+
+Not that it matters.
+
+The reality is very few software developers need to consider algorithms 
+and data structures on a daily basis. 
+For most that do, it doesn’t go much further than choosing the 
+right data structure or algorithm from their programming language’s core library.
+```
+
+---
 ## Table of contents 1/2
 
 0. Preface
@@ -38,6 +53,9 @@ This is not just another book on algorithms but one of the most interesting *boo
 
 ---
 ## Some excerpts
+
+
+---
 
 
 ---
