@@ -542,7 +542,7 @@ When we want to refer to some variable content, introduce some logic expressions
 A template contains variables and/or expressions, which get replaced with values when a template is rendered; and tags, which control the logic of the template. The template syntax is heavily inspired by Django and Python.
 
 - most common is `{{ }}` for Expressions (emit the template output)
-- there is also `{% %}` for Statements and `{# #}` for Comments
+- there is also \{\% \%\} for Statements and `{# #}` for Comments
 
 [See template documentation](https://jinja.palletsprojects.com/en/latest/templates/)
 
