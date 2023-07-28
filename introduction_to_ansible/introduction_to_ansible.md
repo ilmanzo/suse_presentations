@@ -68,7 +68,7 @@ What does automation enable:
 
 - Ansible, Inc. (originally AnsibleWorks, Inc.) was the company founded in 2013 by DeHaan, Timothy Gerla, and Saïd Ziouani to commercially support and sponsor Ansible.
 
-- Red Hat acquired Ansible in October 2015
+- Red Hat acquired Ansible in October 2015. Legal note: Ansible is a registered trademark of Red Hat / IBM and is GPLv2 licensed without copyright assignment.
 
 ---
 # Idempotency
