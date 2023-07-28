@@ -679,7 +679,7 @@ Running this command creates an example role in the current working directory, w
 
 https://sap-linuxlab.github.io/
 
-TODO find some concrete and easy to follow example in the repo
+let's find some concrete and easy to follow examples from the roles in the repo
 
 
 ---
