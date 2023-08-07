@@ -8,7 +8,7 @@ theme: default
 
 ## 5+1 modern CLI tools for *Ye Olde* rusty geekos
 
-![bg left fit](img/opensuse-logo-color.svg)
+![bg left fit](../img/opensuse-logo-color.svg)
 
 ---
 # Brace yourself
@@ -21,7 +21,7 @@ theme: default
 - `time`
 - `PS1`
 
-![bg right fit](img/screaming_cropped-scaled.jpg)
+![bg right fit](../img/screaming_cropped-scaled.jpg)
 
 ---
 # Why ? I like my old tools!
@@ -40,7 +40,7 @@ theme: default
 
 ##  ... because there's a cute mascot like Ferris the crab
 
-![bg right fit](img/cuddlyferris.svg)
+![bg right fit](../img/cuddlyferris.svg)
 
 ---
 ## The tools 1/2
@@ -77,4 +77,4 @@ The minimal, blazing-fast, and infinitely customizable prompt for any shell!
 
 These slides are Open Source and live in a [github repository](https://github.com/ilmanzo/suse_presentations), feel free to improve them 💚
 
-![bg right fit](img/opensuse-logo-color.svg)
+![bg right fit](../img/opensuse-logo-color.svg)

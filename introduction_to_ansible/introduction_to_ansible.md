@@ -37,10 +37,14 @@ What does automation enable:
 ---
 ## Some widely-known configuration Management Tools
 
+some in no specific order:
+
 - [Salt](https://saltstack.com)
 - [Puppet](https://puppetlabs.com)
 - [Chef](https://www.chef.io)
 - [Ansible](https://www.ansible.com)
+
+And many others; recently, Ansible creator  Michael DeHaan shared about a [new OSS project](https://laserllama.substack.com/p/a-new-it-automation-project-moving) he's working on 
 
 ---
 ## What is Ansible?
@@ -131,7 +135,7 @@ to
 ---
 ## installing Ansible
 
-we will use a [development container](https://github.com/containers/toolbox) for our workshop:
+we can use a [development container](https://github.com/containers/toolbox) for our workshop:
 
 ```
 $ toolbox enter
@@ -526,7 +530,7 @@ Sometimes you want a task to run only when a change is made on a machine. For ex
 ---
 # Beyond the basics
 
-- delegation / local actions
+- delegation / local actions (example: send a mail to notify)
 - manage pauses with `wait_for` or `prompt`
 - error control: `ignore_errors` / `failed_when` 
 - tags / filtering
@@ -679,8 +683,14 @@ Running this command creates an example role in the current working directory, w
 
 https://sap-linuxlab.github.io/
 
-let's find some concrete and easy to follow examples from the roles in the repo
+let's find some concrete examples and follow code from the roles in the repo
+- [SAP General preconfigure](https://github.com/sap-linuxlab/community.sap_install/tree/main/roles/sap_general_preconfigure)
+- [SAP storage setup](https://github.com/sap-linuxlab/community.sap_install/tree/main/roles/sap_storage_setup)
+- [HANA install](https://github.com/sap-linuxlab/community.sap_install/tree/main/roles/sap_hana_install)
 
+---
+
+![bg fit](../img/any_questions.jpg)
 
 ---
 # Thanks!
