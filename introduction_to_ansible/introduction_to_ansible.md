@@ -10,6 +10,8 @@ class:
 ---
 # introduction to Ansible
 
+Aug 2023
+
 ## 
 
 ![bg left fit](../img/opensuse-logo-color.svg)
@@ -229,13 +231,13 @@ There are two ways to run ansible:
 
 1. ad hoc
 
-  Run a single task
+  Run a single task, as we'll do next, ideal for interactive usage and experiments
 
   `ansible <pattern> [options]`
 
 2. Playbook
 
-Run multiple tasks (a *playbook*) sequentially
+Run multiple tasks (a *playbook*) sequentially, ideal for scripting/automation
 
   `ansible-playbook <pattern> [options]`
 
