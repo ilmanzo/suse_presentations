@@ -37,19 +37,20 @@ What does automation enable:
 ---
 ## Some widely-known configuration Management Tools
 
-some in no specific order:
+listed in no specific order:
 
 - [Salt](https://saltstack.com)
 - [Puppet](https://puppetlabs.com)
 - [Chef](https://www.chef.io)
 - [Ansible](https://www.ansible.com)
 
-And many others; recently, Ansible creator  Michael DeHaan shared about a [new OSS project](https://laserllama.substack.com/p/a-new-it-automation-project-moving) he's working on 
+And many others; recently, Ansible creator  Michael DeHaan shared about a [new OSS project](https://laserllama.substack.com/p/a-new-it-automation-project-moving) he's working on. 
 
 ---
+![bg right fit](../img/Ansible_logo.svg)
 ## What is Ansible?
 
-## Ansible is a tool for:
+### Ansible is a tool for:
 - Configuration Management
 - Deploying software
 - Orchestration
@@ -62,31 +63,34 @@ And many others; recently, Ansible creator  Michael DeHaan shared about a [new O
 - Agentless (only needs Python on remote host)
 - Only requires SSH
 - Push based
+- Long history and big community of contributors
 
 ---
 ## A bit of history
 
 - The term "ansible" was coined by Ursula K. Le Guin in her 1966 novel Rocannon's World, and refers to fictional instantaneous communication systems. It was also used in the science fiction novel [Ender's Game](https://en.wikipedia.org/wiki/Ender%27s_Game)
 
-- The Ansible tool was developed by Michael DeHaan, the author of the provisioning server application Cobbler and co-author of the Fedora Unified Network Controller (Func) framework for remote administration.
+- The Ansible tool was developed in 2012 by Michael DeHaan, the author of the provisioning server application Cobbler and co-author of the Fedora Unified Network Controller (Func) framework for remote administration.
 
 - Ansible, Inc. (originally AnsibleWorks, Inc.) was the company founded in 2013 by DeHaan, Timothy Gerla, and Saïd Ziouani to commercially support and sponsor Ansible.
 
-- Red Hat acquired Ansible in October 2015. Legal note: Ansible is a registered trademark of Red Hat / IBM and is GPLv2 licensed without copyright assignment.
+- Red Hat acquired Ansible Inc. in October 2015. Legal note: Ansible is a registered trademark of Red Hat / IBM and is GPLv2 licensed without copyright assignment.
 
 ---
-# Idempotency
+# The Idempotency Concept
 
-Configure systems using shell script can be simple and effective, but:
-- complex logic to follow
-- env variables scoping rules
-- portability issues between distributions or operating system
-- they are not repeatable (e.g. **idempotent**)
+Configuring systems using shell script can be simple and effective, but:
+- require to follow complex logic
+- hard to grasp env variables scoping rules
+- portability issues between distro and/or operating systems
+- they are not repeatable (e.g. **idempotent**).
 
-### With Ansible we solve this problem by writing the final destination state we want to reach; the tool makes only the necessary changes.
+With Ansible we solve this problem by writing the final destination state we want to reach; the tool makes only the necessary changes. Let's see an example.
 
 ---
 ### Idempotency example #1
+
+We want to add a specific user to a system. Imperative way:
 
 ```bash
 $ adduser / useradd -b -u -d -G ... 
@@ -94,7 +98,7 @@ $ adduser / useradd -b -u -d -G ...
 $ adduser / useradd -b -u -d -G ... 
 ERROR: user 'adam' already exists
 ```
-vs 
+Declarative way: we **state** that the user must exist in the system 
 
 ```yaml
 # Ensure the user Adam exists in the system
@@ -135,7 +139,7 @@ to
 ---
 ## installing Ansible
 
-we can use a [development container](https://github.com/containers/toolbox) for our workshop:
+for experimental purpose in our workshop we can use any machine or also a [development container](https://github.com/containers/toolbox):
 
 ```
 $ toolbox enter
@@ -170,7 +174,7 @@ you can inspect the code being executed, for example the `ping` builtin module l
 
 `/usr/lib/python3.11/site-packages/ansible/modules/ping.py`
 
-you can also check out the [Ansible Collection](https://docs.ansible.com/ansible/latest/collections/index.html) contains hundreds of ready-made modules, and it's rather easy to [write your own](https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html) 
+you can also check out the [Ansible Collection](https://docs.ansible.com/ansible/latest/collections/index.html), it contains hundreds of ready-made modules, and when you can't find the right one, it's rather easy to [write your own](https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html) 
 
 
 ---
@@ -236,14 +240,38 @@ Run multiple tasks (a *playbook*) sequentially
   `ansible-playbook <pattern> [options]`
 
 ---
-# Inventory
+# Inventory 1/2
 
 Ansible inventory is the list of hosts where we want to apply our configuration. 
-The simplest inventory is a single file with a list of hosts and groups. The default location for this file is `/etc/ansible/hosts`. You can specify a different inventory file at the command line using the `-i <path>` option or in configuration using inventory.
+The simplest inventory is a single file with a list of hosts and groups. The default location for this file is `/etc/ansible/hosts`. You can specify a different inventory file at the command line using the `-i <path>` (even multiple times) option or in `ansible.cfg` configuration using inventory.
 
-A inventory can contain many groups of hosts and associate variables to the group or at the host level.
+Lets' see some example.
 
-The inventory can be made dynamic, e.g. user can provide a script that outputs list of machines (there are many already made for most cloud providers, cmdb, etc.)
+---
+## How to create the most basic inventory
+
+``` echo hostname.domain.com > inventory.txt```
+
+### Example: we use ansible to check memory usage on all the servers listed
+```$ ansible -i inventory.txt all -a "free -m"```
+
+### Let's explain the last command line  
+- `-i` option lets us pass the inventory filename. 
+- `all` means we want to run the next command on all hosts on the inventory
+- `-a` gives the execution `arguments` to the module, which is by default [command](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html#command-module) when not specified . Would be the same to run
+
+```$ ansible -i inventory.txt all -m command -a "free -m"```
+
+---
+# Inventory 2/2
+
+- hosts in an inventory can be organized into **groups**. Groups can also be nested, e.g. create groups of groups. 
+
+- Inventory can be enriched with `host_vars` (variables with values associated with a single host) and/or `group_vars` (variables with values associated with a group, all host in that group will get the same variable) 
+
+- The inventory can be in `yaml` format or in `ini` format and can be made dynamic, e.g. user provides a script that outputs the list of machines at runtime (there are many already made for most cloud providers, cmdb, etc.)
+
+See documentation at https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html 
 
 ---
 SIMPLE INVENTORY EXAMPLE
