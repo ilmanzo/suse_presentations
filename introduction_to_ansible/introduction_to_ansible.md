@@ -214,7 +214,7 @@ PLAYBOOK EXAMPLE: INSTALL & CONFIGURE APACHE WEBSERVER
 # More Terminology
 
 - **Module** : Blob of Python code which is executed to perform task 
-- **Inventory**: File containing hosts and groups of hosts to run tasks
+- **Inventory**: Array of hosts (stored in a file or specified via command-line) where tasks will be run
 - **Role**: A mechanism for reusing and organizing code in Ansible in a standard  hierarchy
 - **Facts**: Builtin variables related to remote systems (i.e. ipaddress, hostname, cpu, ram, disk, etc.). They are filled-in by the `setup` module which is always run by default. Let's see the facts in our machine: 
 
@@ -222,14 +222,12 @@ PLAYBOOK EXAMPLE: INSTALL & CONFIGURE APACHE WEBSERVER
 $ ansible localhost -m setup | less
 ```
 
-
-
 ---
 # running Ansible
 
 There are two ways to run ansible:
 
-1. ad hoc
+1. ad hoc / [console](https://docs.ansible.com/ansible/latest/cli/ansible-console.html)
 
   Run a single task, as we'll do next, ideal for interactive usage and experiments
 
@@ -239,13 +237,22 @@ There are two ways to run ansible:
 
 Run multiple tasks (a *playbook*) sequentially, ideal for scripting/automation
 
-  `ansible-playbook <pattern> [options]`
+  [`ansible-playbook <pattern> [options]`](https://docs.ansible.com/ansible/latest/cli/ansible-playbook.html)
+
+---
+## other utilities
+
+- [ansible-pull](https://docs.ansible.com/ansible/latest/cli/ansible-pull.html) to pull playbooks from a VCS and run them (used tipically in a scheduled cron job / timer)
+- [ansible-vault](https://docs.ansible.com/ansible/latest/cli/ansible-vault.html) to manage secrets, tokens and passwords
+- [ansible-doc](https://docs.ansible.com/ansible/latest/cli/ansible-doc.html) display documentation about installed modules
+- [ansible-config](https://docs.ansible.com/ansible/latest/cli/ansible-config.html) view the current configuration as it will be used
+- [ansible-inventory](https://docs.ansible.com/ansible/latest/cli/ansible-inventory.html) view the current inventory as it will be used
 
 ---
 # Inventory 1/2
 
 Ansible inventory is the list of hosts where we want to apply our configuration. 
-The simplest inventory is a single file with a list of hosts and groups. The default location for this file is `/etc/ansible/hosts`. You can specify a different inventory file at the command line using the `-i <path>` (even multiple times) option or in `ansible.cfg` configuration using inventory.
+The simplest inventory is a single file with a list of hosts and groups. The default location for this file is `/etc/ansible/hosts`. You can specify a different inventory file at the command line using the `-i <path>` (even multiple times) option or in `ansible.cfg` configuration using inventory. On the same command line you can also specify a comma-separated list of hosts.
 
 Lets' see some example.
 
@@ -257,8 +264,13 @@ Lets' see some example.
 ### Example: we use ansible to check memory usage on all the servers listed
 ```$ ansible -i inventory.txt all -a "free -m"```
 
+### alternate inventory on command line
+
+```$ ansible -i myhost1,myhost2,myhost3 all -a "free-m```
+
+---
 ### Let's explain the last command line  
-- `-i` option lets us pass the inventory filename. 
+- `-i` option lets us pass the inventory (via filename or list of hosts) 
 - `all` means we want to run the next command on all hosts on the inventory
 - `-a` gives the execution `arguments` to the module, which is by default [command](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html#command-module) when not specified . Would be the same to run
 
@@ -267,7 +279,7 @@ Lets' see some example.
 ---
 # Inventory 2/2
 
-- hosts in an inventory can be organized into **groups**. Groups can also be nested, e.g. create groups of groups. 
+- hosts in an inventory can be organized into **groups**. Groups can also be nested, e.g. it's possible to create groups of groups. 
 
 - Inventory can be enriched with `host_vars` (variables with values associated with a single host) and/or `group_vars` (variables with values associated with a group, all host in that group will get the same variable) 
 
@@ -334,7 +346,7 @@ By default, Ansible uses native OpenSSH, because it supports *ControlPersist* (a
 
 By default, Ansible connects to all remote devices with the user name you are using on the control node. If that user name does not exist on a remote device, you can [set a different user name for the connection](https://docs.ansible.com/ansible/latest/inventory_guide/connection_details.html#setting-a-remote-user).
 
-If you just need to do some tasks as a different user, use [privilege escalation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_privilege_escalation.html#become):
+If you just need to do some tasks as a privileged user, use [privilege escalation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_privilege_escalation.html#become):
 
 ```yaml
 - name: Ensure the httpd service is running
@@ -380,8 +392,8 @@ the file `/etc/ansible/facts.d/settings.fact` on a remote host, with the followi
 contents:
 ```ini
 [users]
-admin=jane,john
-normal=jim
+owner=jane
+normal=jim,john
 ```
 Next, use Ansible’s setup module to display the new facts on the remote host:
 ```bash
@@ -391,16 +403,20 @@ $ ansible hostname -m setup -a "filter=ansible_local"
 ---
 # Beyond Ad-Hoc commands: playbooks
 
-The Ad-Hoc `ansible` command we used till now are limited to a single task, but most of the time the activity to perform is not a single command.
-We can group many tasks together to form a **play**, and many plays to form a **playbook** (and again many playbooks to form a **role**). Let's say we want to install and configure a web server and start with a basic shell script:
+The Ad-Hoc `ansible` command we used till now are limited to a single task, but most of the time the activity to perform is simply not a single command.
+We can group many tasks together to form a **play**, and many plays to form a **playbook** (and again many playbooks to form a **role**). 
 
 ---
 ## FROM A BASIC SHELL SCRIPT 
 
+Let's say we want to install and configure a web server. Start with a basic shell script:
+
+
 ```bash
+#!/bin/sh 
 # Install Apache.
 zypper install -y apache2
-# Copy configuration files.
+# Copy the configuration file to use in production.
 cp my_httpd.conf /etc/apache2/httpd.conf
 # Start Apache and configure it to run at boot.
 systemctl enable apache2.service
@@ -459,23 +475,15 @@ question: why this is quite bad practice ?
         state: started
 ```
 ---
-# Register variables
+# Variables
 
-There are many times that you will want to run a command, then use its return code,
-stderr, or stdout to determine whether to run a later task. For these situations, Ansible
-allows you to use register to store the output of a particular command in a variable
-at runtime.
+With Ansible, you can execute tasks and playbooks on multiple different systems with a single command. To represent the variations among those different systems, you can create [variables](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html) with standard YAML syntax, including lists and dictionaries. You can define these variables in your playbooks, in your inventory, in re-usable files or roles, or at the command line. You can also create variables during a playbook run by registering the return value or values of a task as a new variable.
 
-```yaml
-     - name: Run a shell command and register its output as a variable
-       ansible.builtin.shell: /usr/bin/foo
-       register: foo_result
-       ignore_errors: true
+👉 variables can be of many types: [boolean](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#boolean-variables), numerical, string, list, dictionary
 
-     - name: Run a shell command using output of the previous task
-       ansible.builtin.shell: /usr/bin/bar
-       when: foo_result.rc == 5
-```
+👉 variables can be defined in many scopes. See [variable precedence](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#understanding-variable-precedence)
+
+👉 TIP: use [`debug` module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/debug_module.html) to display variable values during the execution
 
 ---
 # When to quote variables (a YAML gotcha)
@@ -494,6 +502,27 @@ You will see: `ERROR! Syntax Error while loading YAML.` If you add quotes, Ansib
 - hosts: app_servers
   vars:
        app_path: "{{ base_path }}/myapp"
+```
+
+
+
+---
+# Register variables
+
+Sometimes you will want to run a command, then use its return code,
+stderr, or stdout to determine whether to run a later task. For these situations, Ansible
+allows you to use register to store the output of a particular command in a variable
+at runtime.
+
+```yaml
+     - name: Run a shell command and register its output as a variable
+       ansible.builtin.shell: /usr/bin/foo
+       register: foo_result
+       ignore_errors: true
+
+     - name: Run a shell command using output of the previous task
+       ansible.builtin.shell: /usr/bin/bar
+       when: foo_result.rc == 5
 ```
 
 
@@ -567,6 +596,7 @@ Sometimes you want a task to run only when a change is made on a machine. For ex
 - blocks 
 - import, include 
 - reboot control
+- unit testing
 
 ---
 # Templating
@@ -632,7 +662,7 @@ It can be easily reuse the codes by anyone if the role is suitable to someone.
 
 It can be easily modify and will reduce the syntax errors.
 
-an example Ansible Role can be to [install a WordPress website](https://github.com/MakarenaLabs/ansible-role-wordpress). It requires a web server, php, a database, the application and some configuration
+an example Ansible Role can be the one to [install a WordPress website](https://github.com/MakarenaLabs/ansible-role-wordpress). It includes a web server, php, a database, the application and all needed configurations.
 
 ---
 # Ansible galaxy 1/2
@@ -661,7 +691,7 @@ $ ansible-galaxy role install geerlingguy.apache \
 geerlingguy.mysql geerlingguy.php
 ```
 ---
-# A LAMP server in nine lines of YAML
+# A LAMP server in seven lines of YAML
 
 ```yaml
 # file: lamp-setup.yml
@@ -711,7 +741,7 @@ Running this command creates an example role in the current working directory, w
 ---
 # let's look at real use case
 
-https://sap-linuxlab.github.io/
+from the project https://sap-linuxlab.github.io/
 
 let's find some concrete examples and follow code from the roles in the repo
 - [SAP General preconfigure](https://github.com/sap-linuxlab/community.sap_install/tree/main/roles/sap_general_preconfigure)
