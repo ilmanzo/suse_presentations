@@ -488,7 +488,7 @@ With Ansible, you can execute tasks and playbooks on multiple different systems 
 ---
 # When to quote variables (a YAML gotcha)
 
-If you start a value with {{ foo }}, you must quote the whole expression to create valid YAML syntax. 
+If you start a value with `{{ foo }}`, you must quote the whole expression to create a valid YAML syntax. 
 
 ```yaml
 - hosts: app_servers
@@ -524,6 +524,15 @@ at runtime.
        ansible.builtin.shell: /usr/bin/bar
        when: foo_result.rc == 5
 ```
+---
+# set_facts vs register variables
+
+they do almost the same thing, but with one difference:
+
+## facts are host-specific
+
+when you set a fact using set_facts module, it is specific to the host within which task is currently running. As documentation says : Variables are set on a host-by-host basis just like facts discovered by the setup module. If your playbook has multiple hosts then you can not share a fact set using set_facts from one host to another.
+
 
 
 ---
@@ -618,6 +627,16 @@ A template contains variables and/or expressions, which get replaced with values
     $ cat /tmp/motd
 
 *exercise*: we want to give some control to the user, who can for example change the destination file or include/exclude IPV6 addresses. How can we achieve that ? 
+
+---
+## A word about filters
+
+sometimes you will find expression like `{{ foo | bar}}`. Here `bar` is a [filter](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_filters.html) that takes the output of another expression as input and produces another output, *just like unix shell pipes*. 
+
+- see the list of built-in filters in the [official Jinja2 template documentation](https://jinja.palletsprojects.com/en/3.1.x/templates/#builtin-filters)
+-  You can also use [Python methods](https://jinja.palletsprojects.com/en/3.1.x/templates/#python-methods) to transform data. 
+- You can create [custom Ansible filters](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins) as plugins
+- ansible.builtin also provide a lot of [filters](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html#plugin-index) as plugins
 
 
 
@@ -737,6 +756,36 @@ TIP: to easily create the directory structure for a role, we can use
 `$ ansible-galaxy role init role_name`
 
 Running this command creates an example role in the current working directory, which you can modify to suit your needs. Using the **init** command also ensures the role is structured correctly in case you want to someday contribute the role to Ansible Galaxy.
+
+---
+# Troubleshooting / Debugging tips
+
+- you can dump variable values at runtime using the [debug](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/debug_module.html) module
+- you can run playbooks step-by-step with `--step` option or jump directly at some task with `--start-at-task=<taskname>`
+- you can add [tags](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_tags.html) to a playbook and [filter/run](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_tagshtml#selecting-or-skipping-tags-when-you-run-a-playbook) only on certain tags 
+- use [`check_mode`](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_checkmode.html) to syntax check a playbook before running
+- use `diff_mode` [(when supported)](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_checkmode.html#using-diff-mode) to see what would be change
+- inside a playbook you can invoke an interactive [debugger](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_debugger.html)
+
+---
+### example
+
+```yaml
+- name: Determine a system's registration status
+  command: SUSEConnect --status
+  register: suse_connect_status  # let's save result in a variable
+  changed_when: false # this will never changes state of the system
+  check_mode: false # and don't run this task in check mode
+
+- name: Parse registration status
+  set_fact:
+    # uses stdout of previous command (which is in json) format
+    # to set value of a fact variable
+    sc_status: "{{ suse_connect_status.stdout | from_json }}"
+
+```
+[more will follow up]
+    
 
 ---
 # let's look at real use case
