@@ -605,7 +605,7 @@ Sometimes you want a task to run only when a change is made on a machine. For ex
 - blocks 
 - import, include 
 - reboot control
-- unit testing
+- unit testing (see also [the molecule project](https://ansible.readthedocs.io/projects/molecule/))
 
 ---
 # Templating
@@ -626,7 +626,7 @@ A template contains variables and/or expressions, which get replaced with values
     $ ansible-playbook -i inventory.txt motd.yml
     $ cat /tmp/motd
 
-*exercise*: we want to give some control to the user, who can for example change the destination file or include/exclude IPV6 addresses. How can we achieve that ? 
+*exercise*: we want to give some control to the user, who can for example change the destination file, customize the displayed message or include/exclude IPV6 addresses. How can we achieve that ? 
 
 ---
 ## A word about filters
