@@ -5,7 +5,6 @@ footer: andrea.manzini@suse.com
 theme: default
 class: 
 #  - invert
-  
 
 ---
 # introduction to Ansible
@@ -113,7 +112,6 @@ Declarative way: we **state** that the user must exist in the system
         createhome: yes
         home: /home/users/adamlis    
 ```
-
 
 ---
 ### Idempotency example #2
@@ -504,8 +502,6 @@ You will see: `ERROR! Syntax Error while loading YAML.` If you add quotes, Ansib
        app_path: "{{ base_path }}/myapp"
 ```
 
-
-
 ---
 # Register variables
 
@@ -531,9 +527,7 @@ they do almost the same thing, but with one difference:
 
 ## facts are host-specific
 
-when you set a fact using set_facts module, it is specific to the host within which task is currently running. As documentation says : Variables are set on a host-by-host basis just like facts discovered by the setup module. If your playbook has multiple hosts then you can not share a fact set using set_facts from one host to another.
-
-
+when you set a fact using `set_facts` module, it is specific to the host within which task is currently running. As documentation says : Variables are set on a host-by-host basis just like facts discovered by the setup module. If your playbook has multiple hosts then you can not share a fact set using set_facts from one host to another.
 
 ---
 # if/then/else conditionals
@@ -549,7 +543,6 @@ tasks:
 ```
 
 [see more example on the documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html)
-
 
 
 ---
@@ -583,9 +576,7 @@ You can use the until keyword to retry a task until a certain condition is met. 
   delay: 10
 ```
 
-
 for details please [see documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html)
-
 
 ---
 # Handlers
@@ -668,7 +659,6 @@ and store it in the vault.
 location only you control or can access.
 4. You use the key to let Ansible decrypt the encrypted vault whenever you run
 your playbook.
-
 
 ---
 # What are Ansible roles?
