@@ -1,8 +1,12 @@
 ---
 - name: Prototype to write a new /etc/motd
   hosts: all
+  vars:
+    mytemplate: templates/motd.j2
   tasks:
+    - ansible.builtin.debug:
+        msg: "the value of template is {{mytemplate}}"
     - ansible.builtin.template:
-        src: templates/motd.j2
+        src: "{{mytemplate}}"
         dest: /tmp/motd
 
