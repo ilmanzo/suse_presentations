@@ -257,13 +257,12 @@ subtest '[test for any SLE, no RT, no SLED]' => sub {
 
 
 ---
+### Thanks for watching!
+
 # OSADO Unit testing
 
 ## [an introduction]
 
 ![bg left fit](../img/opensuse-logo-color.svg)
 
-### Thanks for watching!
-
 ## Questions ?
-
