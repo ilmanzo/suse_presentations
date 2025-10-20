@@ -23,7 +23,7 @@ backgroundColor: #203020
 ![bg right fit](../img/torvalds_quote.png)
 
 ---
-# ingredients
+# ingredients 👨‍🍳
 
 - *metadata enabled* test [runner script](https://github.com/os-autoinst/os-autoinst-distri-opensuse/blob/master/data/security/testPolkit/runtest)
 - `testPolkit.go` main test program logic
@@ -33,7 +33,7 @@ backgroundColor: #203020
 - (optional) a Perl module to run in openQA
 
 ---
-## The main dish 
+## The main dish 🍝
 
 ### an Array of TestCase
 
@@ -51,10 +51,11 @@ backgroundColor: #203020
 	}
 ```
 
-Simple, straightforward logic. You can see the test plan without reading the code.
+- Small , testable functions with simple, straightforward logic. 
+- You can see the test plan without reading the code.
 
 ---
-## side dish: Auxiliary libs
+## side dish: Auxiliary libs 🥕 🍅
 
 - **TAP** (Test Anything Protocol) runner and formatter:
 
@@ -67,7 +68,7 @@ Simple, straightforward logic. You can see the test plan without reading the cod
 ---
 # dessert 
 
-- metadata included ! 
+- metadata embedded ! 🤖
 
 ```yaml
 ---
@@ -85,7 +86,7 @@ steps:
   - restore original hostname
 author: <andrea.manzini@suse.com>
 maintainer: QE Security <none@suse.de>
-expected: no errors raised, connection succeed
+expected: no errors raised, user is allowed/denied to change hostname according to the rule
 platform: Tumbleweed
 tags: security polkit bsc#1249581
 ```
@@ -93,7 +94,7 @@ tags: security polkit bsc#1249581
 
 
 ---
-## how I run it outside of openQA ?
+## how do I run it outside of openQA ?
 
 - [start a Tumbleweed vm and access it]
 - install packages: `zypper in go git polkit`
@@ -105,16 +106,19 @@ tags: security polkit bsc#1249581
 
 
 ---
-### openQA perl module
+### what openQA Perl module does:
 
-- installs Go compiler
+- installs `Go` compiler
 - download 'data' files (the real test program)
 - creates directories and puts libraries in place 
-- run test
-- export results in TAP format to openQA
+- run actual test
+- export results in TAP format to openQA, cleanup
+- example run : https://openqa.opensuse.org/tests/5394995#step/polkit_rules/27
+
+(see *'external results'*)
 
 ---
-###
+# 🐪
 
 ```Perl
 sub run {
@@ -140,10 +144,12 @@ sub run {
 
 
 ---
-# OpenQA-agnostic testing
+# Thanks for watching 
+
+## OpenQA-agnostic testing
 
 ## [an introduction]
 
-![bg left fit](../img/opensuse-logo-color.svg)
+![bg right fit](../img/opensuse-logo-color.svg)
 
-### Andrea Manzini
+## Andrea Manzini
