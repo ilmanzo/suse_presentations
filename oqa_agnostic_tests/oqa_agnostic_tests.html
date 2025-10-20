@@ -124,21 +124,20 @@
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-Perl"><span class="hljs-function"><span class="hljs-keyword">sub</span> <span class="hljs-title">run</span> </span>{
     select_serial_terminal;
 
+    <span class="hljs-keyword">my</span> <span class="hljs-variable">@files</span> = <span class="hljs-string">qw(runtest go.mod testPolkit.go utils/utils.go tap/tap.go)</span>;
     <span class="hljs-comment"># install go and download test files</span>
     zypper_call <span class="hljs-string">&#x27;in go&#x27;</span>;
-    <span class="hljs-keyword">my</span> <span class="hljs-variable">@files</span> = <span class="hljs-string">qw(runtest go.mod main.go utils/utils.go tap/tap.go)</span>;
-    assert_script_run(<span class="hljs-string">&quot;mkdir -p ~/testPolkit &amp;&amp; cd ~/testPolkit&quot;</span>);
-    <span class="hljs-keyword">foreach</span> <span class="hljs-keyword">my</span> <span class="hljs-variable">$file</span> (<span class="hljs-variable">@files</span>) {
-        assert_script_run <span class="hljs-string">&quot;curl -O -v --create-dirs &quot;</span> . data_url(<span class="hljs-string">&quot;security/testPolkit/<span class="hljs-variable">$file</span>&quot;</span>);
-    }
+    assert_script_run <span class="hljs-string">&#x27;mkdir -p ~/testPolkit &amp;&amp; cd ~/testPolkit&#x27;</span>;
+    <span class="hljs-keyword">my</span> <span class="hljs-variable">$url</span> = data_url(<span class="hljs-string">&quot;security/testPolkit/&quot;</span>);
+    assert_script_run <span class="hljs-string">&#x27;curl -s --create-dirs &#x27;</span> . <span class="hljs-keyword">join</span> <span class="hljs-string">&#x27; &#x27;</span>, <span class="hljs-keyword">map</span> { <span class="hljs-string">&quot;-O <span class="hljs-variable">$url</span>/<span class="hljs-variable">$_</span>&quot;</span> } <span class="hljs-variable">@files</span>;
     assert_script_run <span class="hljs-string">&#x27;mkdir utils tap &amp;&amp; mv utils.go utils/ &amp;&amp; mv tap.go tap/&#x27;</span>;
 
     <span class="hljs-comment"># run test and generate result file</span>
-    assert_script_run(<span class="hljs-string">&quot;chmod +x ./runtest &amp;&amp; ./runtest &amp;&amp; mv results.tap /tmp&quot;</span>);
+    assert_script_run(<span class="hljs-string">&quot;chmod +x ./runtest &amp;&amp; ./runtest &amp;&amp; mv testPolkit.tap /tmp/polkit_rules.tap&quot;</span>);
 
     <span class="hljs-comment">#cleanup after test</span>
     assert_script_run(<span class="hljs-string">&quot;cd ~ &amp;&amp; rm -rf testPolkit&quot;</span>);
-    parse_extra_log(<span class="hljs-string">&#x27;TAP&#x27;</span>, <span class="hljs-string">&#x27;/tmp/results.tap&#x27;</span>);
+    parse_extra_log(<span class="hljs-string">&#x27;TAP&#x27;</span>, <span class="hljs-string">&#x27;/tmp/polkit_rules.tap&#x27;</span>);
 }
 </code></pre>
 </section>
