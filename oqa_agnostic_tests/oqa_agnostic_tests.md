@@ -109,8 +109,8 @@ tags: security polkit bsc#1249581
 ### what openQA Perl module does:
 
 - installs `Go` compiler
-- download 'data' files (the real test program)
-- creates directories and puts libraries in place 
+- download *'data'* files (the real test program)
+- creates directories and puts Go libraries in place 
 - run actual test
 - export results in TAP format to openQA, cleanup
 - example run : https://openqa.opensuse.org/tests/5394995#step/polkit_rules/27
@@ -141,14 +141,36 @@ sub run {
 }
 ```
 
+---
+# Pro and cons
+
+✅ strongly typed, catch errors at compile time
+
+✅ can be run independently (e.g. give it to a customer or stakeholder)
+
+✅ compatible with other automated test runners (Jenkins, ArgoCD, Travis CI , Github CI, AWS/Azure ... )
+
+❌ Can't see the test source in openQA webui
+
+❌ Less features than `os-autoinst` (needles ?)
+
+---
+# Next steps
+
+- collect feedback, explore the idea adding more tests
+- decide files location and project layout
+- make it scalable, for example converting `Tap` type to an `interface{}`
+- concurrent/parallel testing ?
 
 ---
 # Thanks for watching 
 
 ## OpenQA-agnostic testing
 
-## [an introduction]
+## [a proposal]
 
 ![bg right fit](../img/opensuse-logo-color.svg)
 
 ## Andrea Manzini
+
+# ⁉️ Question time! ⁉️ 
