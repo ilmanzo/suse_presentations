@@ -113,7 +113,7 @@ tags: security polkit bsc#1249581
 - creates directories and puts Go libraries in place 
 - run actual test
 - export results in TAP format to openQA, cleanup
-- example run : https://openqa.opensuse.org/tests/5394995#step/polkit_rules/27
+- example run : https://openqa.opensuse.org/tests/5404762#step/polkit_rules/27
 
 (see *'external results'*)
 
