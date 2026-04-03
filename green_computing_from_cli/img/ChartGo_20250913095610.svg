@@ -1,0 +1,60 @@
+<svg width="700" height="500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 700 500">
+<rect width="700" height="500" x="0" y="0" fill="url(#zr0-g0)"></rect>
+<path d="M0 0l700 0l0 500l-700 0Z" fill="transparent" stroke="#999999" class="zr0-cls-0"></path>
+<path d="M87.0269 427.5L650 427.5" fill="transparent" stroke="#d3d3d3" stroke-dasharray="1" class="zr0-cls-1"></path>
+<path d="M87.0269 347.5L650 347.5" fill="transparent" stroke="#d3d3d3" stroke-dasharray="1" class="zr0-cls-1"></path>
+<path d="M87.0269 268.5L650 268.5" fill="transparent" stroke="#d3d3d3" stroke-dasharray="1" class="zr0-cls-1"></path>
+<path d="M87.0269 189.5L650 189.5" fill="transparent" stroke="#d3d3d3" stroke-dasharray="1" class="zr0-cls-1"></path>
+<path d="M87.0269 109.5L650 109.5" fill="transparent" stroke="#d3d3d3" stroke-dasharray="1" class="zr0-cls-1"></path>
+<path d="M87.0269 30.5L650 30.5" fill="transparent" stroke="#d3d3d3" stroke-dasharray="1" class="zr0-cls-1"></path>
+<path d="M87.5 426.9999L87.5 30" fill="transparent" stroke="black" stroke-linecap="round" class="zr0-cls-1"></path>
+<path d="M87.0269 427.5L650 427.5" fill="transparent" stroke="black" stroke-linecap="round" class="zr0-cls-1"></path>
+<text dominant-baseline="central" text-anchor="end" style="font-size:15px;font-family:sans-serif;" transform="translate(80.0269 426.9999)" fill="black">0</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:15px;font-family:sans-serif;" transform="translate(80.0269 347.5999)" fill="black">100</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:15px;font-family:sans-serif;" transform="translate(80.0269 268.1999)" fill="black">200</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:15px;font-family:sans-serif;" transform="translate(80.0269 188.8)" fill="black">300</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:15px;font-family:sans-serif;" transform="translate(80.0269 109.4)" fill="black">400</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:15px;font-family:sans-serif;" transform="translate(80.0269 30)" fill="black">500</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:15px;font-family:sans-serif;" y="7.500053405761719" transform="translate(227.7701 434.9999)" fill="black">1</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:15px;font-family:sans-serif;" y="7.500053405761719" transform="translate(509.2567 434.9999)" fill="black">16</text>
+<path d="M130.7 427l194.2 0l0 -361.4l-194.2 0Z" fill="url(#zr0-g1)" filter="url(#zr0-s0)" class="zr0-cls-2"></path>
+<path d="M412.1 427l194.2 0l0 -120.2l-194.2 0Z" fill="url(#zr0-g2)" filter="url(#zr0-s0)" class="zr0-cls-3"></path>
+<path d="M-5 -5l10 0l0 10l-10 0Z" transform="translate(350 8)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#ccc" stroke-width="0" class="zr0-cls-1"></path>
+<path d="M-5 -5l10 0l0 10l-10 0Z" transform="translate(690 481)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#ccc" stroke-width="0" class="zr0-cls-1"></path>
+<defs >
+<linearGradient gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1" id="zr0-g0">
+<stop offset="0%" stop-color="#ffffff"></stop>
+<stop offset="100%" stop-color="#ffffff"></stop>
+</linearGradient>
+<linearGradient gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1" id="zr0-g1">
+<stop offset="0%" stop-color="rgb(81,124,239)" stop-opacity="0.7"></stop>
+<stop offset="100%" stop-color="rgb(56,86,167)" stop-opacity="0.7"></stop>
+</linearGradient>
+<filter id="zr0-s0" x="-100%" y="-100%" width="300%" height="300%">
+<feDropShadow dx="3" dy="3" stdDeviation="3 3" flood-color="rgb(0,0,0)" flood-opacity="0.5"></feDropShadow>
+</filter>
+<linearGradient gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1" id="zr0-g2">
+<stop offset="0%" stop-color="rgb(50,205,50)" stop-opacity="0.7"></stop>
+<stop offset="100%" stop-color="rgb(35,143,35)" stop-opacity="0.7"></stop>
+</linearGradient>
+</defs>
+<style ><![CDATA[
+.zr0-cls-0:hover {
+cursor:pointer;
+}
+.zr0-cls-1:hover {
+pointer-events:none;
+}
+.zr0-cls-2:hover {
+cursor:pointer;
+fill:[object Object];
+}
+.zr0-cls-3:hover {
+cursor:pointer;
+fill:[object Object];
+}
+
+]]>
+
+</style>
+</svg>

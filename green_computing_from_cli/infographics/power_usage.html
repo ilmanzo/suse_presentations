@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Dilemma Energetico dell'IA nel Settore Tecnologico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #E0E1DD;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .card {
+            background-color: #FFFFFF;
+        }
+        .bg-primary-dark { background-color: #0D1B2A; }
+        .bg-primary-medium { background-color: #1B263B; }
+        .bg-primary-light { background-color: #415A77; }
+        .text-primary-accent { color: #FF9F1C; }
+        .text-primary-lightest { color: #E0E1DD; }
+        .border-primary-light { border-color: #415A77; }
+    </style>
+</head>
+<body class="text-primary-dark">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-bold text-primary-dark mb-4 text-shadow">Il Paradosso Energetico dell'IA</h1>
+            <p class="text-lg md:text-xl text-primary-light max-w-4xl mx-auto">Mentre i giganti della tecnologia guidano la transizione verso le energie rinnovabili, la crescita esplosiva dell'Intelligenza Artificiale spinge il loro consumo energetico a livelli record, mettendo a rischio gli obiettivi climatici.</p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <div class="card rounded-lg shadow-xl p-6 md:col-span-2 lg:col-span-3">
+                <h2 class="text-2xl font-bold mb-4 text-primary-dark">La Sete di Energia dell'IA</h2>
+                <p class="text-primary-light mb-6">L'Agenzia Internazionale dell'Energia prevede un aumento sbalorditivo del consumo di elettricità da parte di data center, IA e criptovalute, che potrebbe più che raddoppiare entro il 2026. Questo evidenzia una nuova era di domanda energetica guidata dall'innovazione tecnologica.</p>
+                <div class="flex flex-col md:flex-row items-center justify-around text-center">
+                    <div class="mb-6 md:mb-0">
+                        <p class="text-5xl md:text-7xl font-bold text-primary-accent text-shadow">460</p>
+                        <p class="text-lg font-semibold text-primary-light">TWh nel 2022</p>
+                    </div>
+                    <div class="text-4xl font-light text-primary-light mb-4 md:mb-0 transform rotate-90 md:rotate-0">➔</div>
+                    <div>
+                        <p class="text-5xl md:text-7xl font-bold text-primary-accent text-shadow">>1.000</p>
+                        <p class="text-lg font-semibold text-primary-light">TWh nel 2026 (stima)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card rounded-lg shadow-xl p-6 md:col-span-2 lg:col-span-3">
+                <h2 class="text-2xl font-bold mb-4 text-primary-dark">L'Ascesa dei Consumi Elettrici</h2>
+                <p class="text-primary-light mb-6">La domanda di calcolo per l'IA ha innescato una crescita quasi esponenziale del consumo di elettricità per le aziende hyperscaler. I grafici mostrano una traiettoria che i soli guadagni di efficienza non riescono più a compensare.</p>
+                <div class="chart-container max-w-5xl">
+                    <canvas id="electricityConsumptionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card rounded-lg shadow-xl p-6 md:col-span-2 lg:col-span-3">
+                <h2 class="text-2xl font-bold mb-4 text-primary-dark">Consumo Energetico a Confronto (TWh)</h2>
+                <p class="text-primary-light mb-6">La tabella seguente mostra il consumo di elettricità dichiarato dalle principali aziende tecnologiche. La rapida crescita, in particolare per gli hyperscaler che alimentano i servizi di IA, è evidente.</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-primary-medium text-primary-lightest">
+                                <th class="p-4 font-bold uppercase">Azienda</th>
+                                <th class="p-4 font-bold uppercase text-right">2021 (TWh)</th>
+                                <th class="p-4 font-bold uppercase text-right">2022 (TWh)</th>
+                                <th class="p-4 font-bold uppercase text-right">2023 (TWh)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="p-4 font-semibold">Google</td>
+                                <td class="p-4 text-right">18.6</td>
+                                <td class="p-4 text-right">22.4</td>
+                                <td class="p-4 text-right">25.9</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-semibold">Amazon</td>
+                                <td class="p-4 text-right">71.7</td>
+                                <td class="p-4 text-right">84.8</td>
+                                <td class="p-4 text-right">N/D</td>
+                            </tr>
+                             <tr>
+                                <td class="p-4 font-semibold">Microsoft</td>
+                                <td class="p-4 text-right">~13.0</td>
+                                <td class="p-4 text-right">~18.0</td>
+                                <td class="p-4 text-right">~23.0</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-semibold">Meta</td>
+                                <td class="p-4 text-right">9.5</td>
+                                <td class="p-4 text-right">11.2</td>
+                                <td class="p-4 text-right">N/D</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-semibold">Apple</td>
+                                <td class="p-4 text-right">1.3</td>
+                                <td class="p-4 text-right">1.3</td>
+                                <td class="p-4 text-right">1.2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                 <p class="text-xs text-primary-light mt-4">Nota: I dati di Microsoft sono stime basate sui dati del 2020 e 2024. N/D indica dati non disponibili al momento della pubblicazione.</p>
+            </div>
+
+            <div class="card rounded-lg shadow-xl p-6 lg:col-span-1">
+                <h2 class="text-2xl font-bold mb-4 text-primary-dark">Efficienza dei Data Center</h2>
+                 <p class="text-primary-light mb-6">Le principali aziende tecnologiche operano con un'efficienza energetica (PUE) eccezionale, vicina al valore ideale di 1.0. Questo dimostra che il problema non è l'inefficienza, ma il volume assoluto della domanda energetica.</p>
+                <div class="chart-container h-64 sm:h-80">
+                    <canvas id="pueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card rounded-lg shadow-xl p-6 md:col-span-2">
+                <h2 class="text-2xl font-bold mb-4 text-primary-dark">Contabilità vs. Realtà: Il Divario delle Emissioni</h2>
+                <p class="text-primary-light mb-6">Esiste una differenza critica tra le emissioni "Market-Based", ridotte grazie all'acquisto di certificati di energia rinnovabile, e le emissioni "Location-Based", che riflettono l'impatto reale sulla rete elettrica locale. Questo divario nasconde l'aumento delle emissioni fisiche.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="border-2 border-primary-light p-4 rounded-lg text-center h-full flex flex-col justify-center">
+                        <h3 class="font-bold text-lg text-primary-dark">Market-Based</h3>
+                        <p class="text-primary-light text-sm">Contabilizza l'acquisto di energia rinnovabile. Permette di dichiarare emissioni vicine allo zero per il consumo elettrico (Scope 2).</p>
+                        <p class="text-5xl font-bold text-green-500 mt-2">↓</p>
+                    </div>
+                    <div class="border-2 border-primary-light p-4 rounded-lg text-center h-full flex flex-col justify-center">
+                        <h3 class="font-bold text-lg text-primary-dark">Location-Based</h3>
+                        <p class="text-primary-light text-sm">Riflette il mix energetico reale della rete locale. Rivela che le operazioni si basano ancora in gran parte su combustibili fossili, mostrando emissioni in crescita.</p>
+                        <p class="text-5xl font-bold text-red-500 mt-2">↑</p>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                     <div class="chart-container max-w-xl h-64 sm:h-80">
+                        <canvas id="emissionsGapChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card rounded-lg shadow-xl p-6 md:col-span-2 lg:col-span-3 bg-primary-dark text-primary-lightest">
+                <h2 class="text-2xl font-bold mb-2">Un Percorso Diverso: La Strategia di Apple</h2>
+                <p class="text-slate-300 mb-6">A differenza degli hyperscaler, Apple si concentra sulla decarbonizzazione della sua catena di approvvigionamento e sul ciclo di vita dei prodotti, ottenendo una riduzione significativa delle emissioni complessive.</p>
+                <div class="flex flex-col md:flex-row items-center justify-around text-center gap-8">
+                    <div class="flex flex-col items-center">
+                        <span class="text-6xl md:text-8xl font-bold text-primary-accent text-shadow">>55%</span>
+                        <span class="text-lg mt-2">di riduzione delle emissioni totali dal 2015</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-6xl md:text-8xl font-bold text-primary-accent text-shadow">24%</span>
+                        <span class="text-lg mt-2">dei materiali da fonti riciclate o rinnovabili</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card rounded-lg shadow-xl p-6 md:col-span-2 lg:col-span-3">
+                <h2 class="text-2xl font-bold mb-4 text-primary-dark">Il Futuro dell'Energia nel Settore Tech</h2>
+                <p class="text-primary-light mb-6">La domanda di energia costante dell'IA sta spingendo le aziende oltre le rinnovabili intermittenti come eolico e solare. Si delinea una nuova frontiera di investimenti strategici in fonti di energia pulita, stabili e disponibili 24/7.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
+                    <div class="bg-primary-medium text-primary-lightest p-6 rounded-lg">
+                        <p class="text-4xl mb-3">☢️</p>
+                        <h3 class="text-xl font-bold">Energia Nucleare</h3>
+                        <p class="text-sm opacity-80">Microsoft e Amazon stanno investendo in energia nucleare per garantire un'alimentazione di base senza emissioni di carbonio.</p>
+                    </div>
+                    <div class="bg-primary-medium text-primary-lightest p-6 rounded-lg">
+                        <p class="text-4xl mb-3">🌋</p>
+                        <h3 class="text-xl font-bold">Geotermia Avanzata</h3>
+                        <p class="text-sm opacity-80">Google punta sulla geotermia per ottenere energia pulita e costante, sfruttando il calore della Terra.</p>
+                    </div>
+                     <div class="bg-primary-medium text-primary-lightest p-6 rounded-lg">
+                        <p class="text-4xl mb-3">🔋</p>
+                        <h3 class="text-xl font-bold">Stoccaggio Energetico</h3>
+                        <p class="text-sm opacity-80">Tutte le aziende investono in soluzioni di stoccaggio a lunga durata per bilanciare le reti e utilizzare le rinnovabili anche quando non c'è sole o vento.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="text-center mt-12 pt-8 border-t border-primary-light">
+            <p class="text-sm text-primary-light">Questa infografica è basata su dati e analisi di report pubblici sulla sostenibilità aziendale. I dati del 2024 per alcune aziende sono basati su proiezioni o report fiscali recenti.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const FONT_COLOR = '#0D1B2A';
+            const GRID_COLOR = '#778DA9';
+            const PALETTE = {
+                google: '#4285F4',
+                microsoft: '#F25022',
+                meta: '#1877F2',
+                apple: '#A2AAAD',
+                amazon: '#FF9900'
+            };
+
+            const defaultTooltipCallback = {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                  return label.join(' ');
+                                } else {
+                                  return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            const defaultChartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: FONT_COLOR },
+                        grid: { color: GRID_COLOR }
+                    },
+                    x: {
+                        ticks: { color: FONT_COLOR },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: FONT_COLOR
+                        }
+                    },
+                     tooltip: defaultTooltipCallback.plugins.tooltip
+                }
+            };
+
+            const wrapLabel = (label) => {
+                const maxLength = 16;
+                if (label.length <= maxLength) return label;
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + word).length > maxLength) {
+                        lines.push(currentLine.trim());
+                        currentLine = '';
+                    }
+                    currentLine += word + ' ';
+                });
+                lines.push(currentLine.trim());
+                return lines;
+            };
+
+            new Chart(document.getElementById('electricityConsumptionChart'), {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024'],
+                    datasets: [
+                        {
+                            label: 'Google (TWh)',
+                            data: [15.5, 18.6, 22.4, 25.9, 32.2],
+                            borderColor: PALETTE.google,
+                            backgroundColor: PALETTE.google + '33',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Microsoft (TWh)',
+                            data: [10.8, null, null, null, 29.8],
+                            borderColor: PALETTE.microsoft,
+                            backgroundColor: PALETTE.microsoft + '33',
+                            fill: true,
+                            tension: 0.3,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: { ...defaultChartOptions }
+            });
+
+            new Chart(document.getElementById('pueChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Meta', 'Google', 'Amazon (AWS)'],
+                    datasets: [{
+                        label: 'PUE (Power Usage Effectiveness)',
+                        data: [1.09, 1.10, 1.15],
+                        backgroundColor: [PALETTE.meta, PALETTE.google, PALETTE.amazon],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    indexAxis: 'y',
+                    scales: {
+                         x: {
+                            beginAtZero: false,
+                            min: 1.0,
+                            ticks: { color: FONT_COLOR },
+                            grid: { color: GRID_COLOR }
+                         },
+                         y: {
+                            ticks: { color: FONT_COLOR },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            
+             const rawLabels = ['Google Scope 2 (Location-Based)', 'Microsoft Scope 2 (Location-Based)'];
+             const wrappedLabels = rawLabels.map(wrapLabel);
+             new Chart(document.getElementById('emissionsGapChart'), {
+                type: 'bar',
+                data: {
+                    labels: wrappedLabels,
+                    datasets: [
+                        {
+                            label: 'Market-Based (MTCO₂e)',
+                            data: [0.05, 0.26],
+                            backgroundColor: '#4ade80',
+                        },
+                        {
+                            label: 'Location-Based (MTCO₂e)',
+                            data: [11.28, 9.96],
+                            backgroundColor: '#f87171',
+                        }
+                    ]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    scales: {
+                        y: {
+                            ...defaultChartOptions.scales.y,
+                            title: {
+                                display: true,
+                                text: 'Milioni di Tonnellate di CO₂e'
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
+

@@ -22,14 +22,19 @@ backgroundColor: #203020
 
 ![bg right fit](../img/torvalds_quote.png)
 
+
+---
+# Changelog
+
+ - 31.10.2025 This is v2 of the proposal. Previous version was using a custom test runner and output TAP results, while this one uses standard Go Testing framework and output results in XML format thanks to [gotestsum](https://github.com/gotestyourself/gotestsum)
+
+
 ---
 # ingredients 👨‍🍳
 
 - *metadata enabled* test [runner script](https://github.com/os-autoinst/os-autoinst-distri-opensuse/blob/master/data/security/testPolkit/runtest)
-- `testPolkit.go` main test program logic
-- reusable utility libraries for
-  - process execution
-  - output format
+- `polkit_test.go` main test program logic
+- reusable utility library for process execution
 - (optional) a Perl module to run in openQA
 
 ---
@@ -38,16 +43,14 @@ backgroundColor: #203020
 ### an Array of TestCase
 
 ```Go
-	testCases := map[int]tap.TestCase{
-		1: {"Save original hostname", nil},
-		2: {"Check polkit rules directory permissions (root:polkitd)", checkPermissions},
-		3: {"Add polkit rule and restart service", addRuleAndRestart},
-		4: {"Change hostname without authentication", changeHostnameWithAuth},
-		5: {"Verify hostname was changed", verifyHostnameChanged},
-		6: {"Remove polkit rule and restart service", removeRuleAndRestart},
-		7: {"Hostname change should fail without authentication", changeHostnameShouldFail},
-		8: {"Verify hostname was not changed", verifyHostnameUnchanged},
-		9: {"Restore original hostname", nil},
+	testCases := []testCase{
+		{"Check polkit rules directory permissions (root:polkitd)", checkPermissions},
+		{"Add polkit rule and restart service", addRuleAndRestart},
+		{"Change hostname without authentication", changeHostnameWithAuth},
+		{"Verify hostname was changed", verifyHostnameChanged},
+		{"Remove polkit rule and restart service", removeRuleAndRestart},
+		{"Hostname change should fail without authentication", changeHostnameShouldFail},
+		{"Verify hostname was not changed", verifyHostnameUnchanged},
 	}
 ```
 
@@ -57,13 +60,11 @@ backgroundColor: #203020
 ---
 ## side dish: Auxiliary libs 🥕 🍅
 
-- **TAP** (Test Anything Protocol) runner and formatter:
-
-  receives an array of tests and run it, properly formatting the output 
-
 - **exec helper**:
 
   run a command in background, reading stdout/stderr and manage timeout
+
+- [gotestsum](https://github.com/gotestyourself/gotestsum) test runner that outputs results in XML format. Used in many big upstream projects (kubernetes, prometheus, telegraf...)
 
 ---
 # dessert 
@@ -101,9 +102,6 @@ tags: security polkit bsc#1249581
 - `git clone --depth 1 https://github.com/os-autoinst/os-autoinst-distri-opensuse`
 - `cd os-autoinst-distri-opensuse/data/security/testPolkit`
 - `sudo ./runtest`
-- `cat testPolkit.tap`
-
-
 
 ---
 ### what openQA Perl module does:
@@ -111,8 +109,8 @@ tags: security polkit bsc#1249581
 - installs `Go` compiler
 - download *'data'* files (the real test program)
 - creates directories and puts Go libraries in place 
-- run actual test
-- export results in TAP format to openQA, cleanup
+- run actual test with `gotestsum` 
+- export results in XML format to openQA, cleanup
 - example run : https://openqa.opensuse.org/tests/5404762#step/polkit_rules/27
 
 (see *'external results'*)
@@ -124,20 +122,19 @@ tags: security polkit bsc#1249581
 sub run {
     select_serial_terminal;
 
-    my @files = qw(runtest go.mod testPolkit.go utils/utils.go tap/tap.go);
+    my @files = qw(runtest go.mod polkit_test.go utils.go);
     # install go and download test files
-    zypper_call 'in go';
+    zypper_call 'in go gotestsum';
     assert_script_run 'mkdir -p ~/testPolkit && cd ~/testPolkit';
     my $url = data_url("security/testPolkit/");
-    assert_script_run 'curl -s --create-dirs ' . join ' ', map { "-O $url/$_" } @files;
-    assert_script_run 'mkdir utils tap && mv utils.go utils/ && mv tap.go tap/';
+    assert_script_run 'curl -s ' . join ' ', map { "-O $url/$_" } @files;
 
     # run test and generate result file
-    assert_script_run("chmod +x ./runtest && ./runtest && mv testPolkit.tap /tmp/polkit_rules.tap");
+    assert_script_run("chmod +x ./runtest && ./runtest && mv results.xml /tmp/polkit_rules.xml");
 
     #cleanup after test
     assert_script_run("cd ~ && rm -rf testPolkit");
-    parse_extra_log('TAP', '/tmp/polkit_rules.tap');
+    parse_extra_log('XUnit', '/tmp/polkit_rules.xml');
 }
 ```
 
@@ -159,7 +156,6 @@ sub run {
 
 - collect feedback, explore the idea adding more tests
 - decide files location and project layout
-- make it scalable, for example converting `Tap` type to an `interface{}`
 - concurrent/parallel testing ?
 
 ---
@@ -167,7 +163,7 @@ sub run {
 
 ## OpenQA-agnostic testing
 
-## [a proposal]
+## [a proposal] v.2
 
 ![bg right fit](../img/opensuse-logo-color.svg)
 

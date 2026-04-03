@@ -1,0 +1,45 @@
+  1. Kepler (Kubernetes-based Efficient Power Level Exporter)
+  This is currently the "gold standard" for cloud-native power profiling.
+   * The Problem it Solves: In the cloud (AWS/GCP), you usually don't have access to Intel RAPL
+     because the hypervisor hides it.
+   * How it works: It uses eBPF (extended Berkeley Packet Filter) to look at CPU instructions, cache
+     misses, and context switches at the kernel level. It then uses a Machine Learning model to
+     estimate the power consumption of a specific Pod or Container based on those signals.
+   * Why it's cool: It allows you to see the "Joules per Request" for a specific microservice even
+     when running on shared hardware in the cloud.
+
+
+  2. Scaphandre
+  A specialized "metrology" agent written in Rust.
+   * Focus: It acts as a bridge between the low-level hardware (RAPL, NVIDIA GPUs) and your
+     monitoring stack (Prometheus/Grafana).
+   * Unique Feature: It can calculate the embodied carbon of the hardware (the energy it took to make
+     the server), not just the energy it takes to run your code.
+
+
+  3. OpenTelemetry (OTel) Semantic Conventions for Energy
+  Power measurement is finally becoming a "first-class citizen" in the world of SRE.
+   * The Tech: OpenTelemetry is standardizing how energy metrics are named and exported.
+   * The Benefit: Soon, you won't need specialized "power tools." Your standard APM dashboard (like
+     Datadog or Jaeger) will show energy consumption alongside latency and error rates because the
+     metrics follow a universal standard.
+
+
+  4. Carbon Aware SDK (Green Software Foundation)
+  This isn't for measuring, but for acting on the measurements.
+   * The Concept: "Spatial and Temporal Shifting."
+   * The Tech: A library that tells your program the current "Carbon Intensity" of the grid.
+   * Example for your talk: "If my measuring tool tells me this batch job takes 1,000 Joules, the SDK
+     can tell the program to wait 3 hours to run it when the wind is blowing and the grid is
+     'greener,' effectively reducing the CO2 impact without changing the code."
+
+
+  How to use this in your 25m Talk:
+  I recommend adding a "The Cloud Challenge" slide right after your Python vs. Rust comparison:
+   1. Acknowledge the Gap: "RAPL is great for my laptop, but what about my EKS cluster in AWS?"
+   2. Introduce Kepler: Explain how eBPF + ML models allow us to 'guess' the power consumption when
+      the hardware is hidden.
+   3. The Vision: Show a Grafana dashboard where 'Energy' is just another line next to 'CPU' and
+      'RAM'.
+
+
