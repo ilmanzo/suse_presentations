@@ -8,4 +8,5 @@ This repository is a container for some presentation I'm giving in **SUSE**
 - [Introduction to Ansible](introduction_to_ansible/introduction_to_ansible.html)
 - [OSADO Unit Testing](osado_unit_testing/osado_unit_testing.html)
 - [openQA Agnostic Tests](oqa_agnostic_tests/oqa_agnostic_tests.html)
+- [Green Computing from the command line](green_computing_from_cli/energy_talk_en.html)
 
