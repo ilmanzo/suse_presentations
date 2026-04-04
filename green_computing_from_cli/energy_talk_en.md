@@ -198,12 +198,33 @@ Energy is being standardized! OTel Semantic Conventions mean your standard APM (
 - **Temporal Shifting:** Wait 3 hours to run the batch job when the wind is blowing.
 
 ---
+# The Jevons Paradox (The Rebound Effect)
+
+*Why efficiency isn't enough to save us.*
+
+As technological progress increases the efficiency with which a resource is used (reducing the amount necessary for any one use), the rate of consumption of that resource rises due to increasing demand.
+
+- **Example:** We moved from power-hungry spinning HDDs to highly efficient SSDs. Did we save energy? No, we just started storing 100x more data (4K video, massive databases) because it became cheap and fast.
+- **The AI Era:** More efficient GPUs don't mean less energy used; they mean we train *larger* and *more complex* models.
+- **The Takeaway:** Technical efficiency must be paired with conscious consumption.
+
+---
 # Limitations & Best Practices
 
 - **What's missing?** RAPL doesn't (usually) measure GPUs, Disks, or Network cards.
 - **Repeatability:** Close your browser/Slack before measuring! Establish a **baseline**.
 - **Model vs. Truth:** It's an estimation, but it's consistent for comparison.
 - **Don't Over-optimize:** Sometimes the energy to *refactor* the code is more than the energy saved in 10 years of execution.
+
+---
+# What Can YOU Do?
+
+*Green computing isn't just for kernel developers.*
+
+1. **Extend Hardware Lifespan:** ~70-80% of a laptop's lifetime carbon footprint is **Embodied Carbon** (manufacturing). Keep your devices for 5 years instead of 2.
+2. **Embrace Dark Mode:** On modern OLED screens, black pixels are physically turned off, saving battery and energy.
+3. **Temporal Shifting at Home:** Schedule heavy tasks (system updates, backups, massive downloads) overnight when grid energy is usually cleaner and cheaper.
+4. **Demand Transparency:** Ask your cloud providers and software vendors about their energy metrics and sustainability goals.
 
 ---
 # Summary & Takeaways
