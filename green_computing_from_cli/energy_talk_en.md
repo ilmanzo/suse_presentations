@@ -167,6 +167,17 @@ sudo perf stat -e power/energy-pkg/ -- $SORT_CMD16
 ![bg right:30% fit](img/Original_Ferris.svg)
 
 ---
+# Limitations & Best Practices
+
+- **What's missing?** RAPL doesn't (usually) measure GPUs, Disks, or Network cards.
+- **Repeatability:** Close your browser/Slack before measuring! Establish a **baseline**.
+- **Model vs. Truth:** It's an estimation, but it's consistent for comparison.
+- **Don't Over-optimize:** Sometimes the energy to *refactor* the code is more than the energy saved in 10 years of execution.
+
+![bg left:33% fit](img/electric-meter-calculating-3gc3nb6izehlfuuv.webp)
+
+
+---
 # Beyond Local: The cloud native challenge
 
 **The Problem:** In AWS/GCP, the hypervisor hides RAPL. `/sys/class/powercap` is empty!
@@ -177,6 +188,13 @@ sudo perf stat -e power/energy-pkg/ -- $SORT_CMD16
 - **Goal:** "Joules per Request" in your Grafana dashboard.
 
 ---
+![center](img/carbon_dashboard.webp)
+
+(image courtesy of CERN)
+
+<!-- _footer: "" -->
+
+---
 # The Modern Stack: Scaphandre
 
 A specialized metrology agent written in **Rust**.
@@ -185,7 +203,10 @@ A specialized metrology agent written in **Rust**.
 - **Embodied Carbon:** Can estimate the energy it took to *manufacture* the server, not just run it.
 - **Transparency:** Makes energy a "first-class citizen" alongside CPU and RAM metrics.
 
-![bg left:33% fit](img/electric-meter-calculating-3gc3nb6izehlfuuv.webp)
+---
+![bg contain](img/scaphandre_dashboard.webp)
+
+<!-- _footer: "" -->
 
 ---
 # Standards & Action
@@ -206,15 +227,7 @@ As technological progress increases the efficiency with which a resource is used
 
 - **Example:** We moved from power-hungry spinning HDDs to highly efficient SSDs. Did we save energy? No, we just started storing 100x more data (4K video, massive databases) because it became cheap and fast.
 - **The AI Era:** More efficient GPUs don't mean less energy used; they mean we train *larger* and *more complex* models.
-- **The Takeaway:** Technical efficiency must be paired with conscious consumption.
-
----
-# Limitations & Best Practices
-
-- **What's missing?** RAPL doesn't (usually) measure GPUs, Disks, or Network cards.
-- **Repeatability:** Close your browser/Slack before measuring! Establish a **baseline**.
-- **Model vs. Truth:** It's an estimation, but it's consistent for comparison.
-- **Don't Over-optimize:** Sometimes the energy to *refactor* the code is more than the energy saved in 10 years of execution.
+- **The Takeaway:** *Technical efficiency must be paired with conscious consumption*.
 
 ---
 # What Can YOU Do?
