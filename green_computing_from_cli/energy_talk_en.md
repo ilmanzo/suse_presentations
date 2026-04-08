@@ -209,16 +209,6 @@ A specialized metrology agent written in **Rust**.
 <!-- _footer: "" -->
 
 ---
-# Standards & Action
-
-### OpenTelemetry (OTel)
-Energy is being standardized! OTel Semantic Conventions mean your standard APM (Datadog, Jaeger) will soon show Energy by default.
-
-### Carbon Aware SDK (Green Software Foundation)
-- **Spatial Shifting:** Run the job in the region with the cleanest grid (e.g., Sweden vs. Poland).
-- **Temporal Shifting:** Wait 3 hours to run the batch job when the wind is blowing.
-
----
 # The Jevons Paradox (The Rebound Effect)
 
 *Why efficiency isn't enough to save us.*
@@ -238,6 +228,16 @@ As technological progress increases the efficiency with which a resource is used
 2. **Embrace Dark Mode:** On modern OLED screens, black pixels are physically turned off, saving battery and energy.
 3. **Temporal Shifting at Home:** Schedule heavy tasks (system updates, backups, massive downloads) overnight when grid energy is usually cleaner and cheaper.
 4. **Demand Transparency:** Ask your cloud providers and software vendors about their energy metrics and sustainability goals.
+
+---
+# Looking forward ...
+
+### [OpenTelemetry](https://opentelemetry.io/)
+Energy is being standardized! OTel *Semantic Conventions* mean your standard APM (Datadog, Jaeger) will soon show Energy by default.
+
+### [Carbon Aware SDK (Green Software Foundation)](https://carbon-aware-sdk.greensoftware.foundation/)
+- **Spatial Shifting:** Run the job in the region with the cleanest grid (e.g., Sweden vs. Poland).
+- **Temporal Shifting:** Wait 3 hours to run the batch job when the wind is blowing.
 
 ---
 # Summary & Takeaways
