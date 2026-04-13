@@ -147,9 +147,9 @@ sudo perf stat -e power/energy-pkg/ -- $SORT_CMD16
 - **16 Threads:** 6.4s @ ~24W = **151 Joules**
 
 ### Result: ~66% Energy Saving!
-**Lesson:** Finishing fast and letting the CPU return to "Idle" (C-states) is often the best strategy.
+Finishing fast and letting the CPU return to "Idle" C-states is often the best strategy.
 
-![bg right:40% fit](img/chart.png)
+![bg right:60% fit](img/chart.png)
 
 ---
 # Experiment 2: Calculate the 1,000,000th prime number.
@@ -182,7 +182,7 @@ sudo perf stat -e power/energy-pkg/ -- $SORT_CMD16
 
 **The Problem:** In AWS/GCP, the hypervisor hides RAPL. `/sys/class/powercap` is empty!
 
-### a solution: Kepler (Kubernetes-based Efficient Power Level Exporter)
+### a solution: [Kepler](https://github.com/sustainable-computing-io/kepler) (Kubernetes-based Efficient Power Level Exporter)
 - Uses **eBPF** to watch CPU instructions, cache misses, and context switches.
 - Uses **Machine Learning** to "guess" power consumption per Pod/Container.
 - **Goal:** "Joules per Request" in your Grafana dashboard.
@@ -195,7 +195,7 @@ sudo perf stat -e power/energy-pkg/ -- $SORT_CMD16
 <!-- _footer: "" -->
 
 ---
-# The Modern Stack: Scaphandre
+# The Modern Stack: [Scaphandre](https://github.com/hubblo-org/scaphandre)
 
 A specialized metrology agent written in **Rust**.
 
