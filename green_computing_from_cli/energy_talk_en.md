@@ -102,7 +102,6 @@ print(f"Average Power: {(v1-v0)/1e6:.1f} W")
 | **powertop** | System-wide diagnosis & "vampire" processes. | `sudo powertop` |
 | **powerstat** | Real-time monitoring of system drain. | `sudo powerstat` |
 | **perf** | **Precision surgical measurement** of a command. | `sudo perf stat -e power/energy-pkg/` |
-| **s-tui** | Visualizing stress vs. power vs. frequency. | `s-tui` |
 
 ---
 # Experiment 1: sort a 1GB text file
@@ -116,7 +115,7 @@ $ wc -l big.txt
 
 $ sort big.txt > /dev/null
 ```
-Takes ~25 seconds. 
+On my pc it takes ~25 seconds. 
 
 ---
 We could sort using parallelism, but Parallel sorting uses more cores (more Watts). Will it also consume more Energy (Joules)?
@@ -124,7 +123,7 @@ We could sort using parallelism, but Parallel sorting uses more cores (more Watt
 ```
 $ time sort --parallel=16 big.txt > /dev/null
 ```
-Takes ~6.4 seconds.
+Now it takes ~6.4 seconds.
 
 ---
 Measure 1: sort single-thread
@@ -163,6 +162,8 @@ Finishing fast and letting the CPU return to "Idle" C-states is often the best s
 
 *Note: We used the exact same algorithm for both.*
 
+*Source code is [available](https://github.com/ilmanzo/suse_presentations/tree/master/green_computing_from_cli)*
+
 ![bg left:30% fit](img/Python.svg)
 ![bg right:30% fit](img/Original_Ferris.svg)
 
@@ -180,7 +181,7 @@ Finishing fast and letting the CPU return to "Idle" C-states is often the best s
 ---
 # Beyond Local: The cloud native challenge
 
-**The Problem:** In AWS/GCP, the hypervisor hides RAPL. `/sys/class/powercap` is empty!
+**The Problem:** On the cloud, the hypervisor hides RAPL. `/sys/class/powercap` is empty!
 
 ### a solution: [Kepler](https://github.com/sustainable-computing-io/kepler) (Kubernetes-based Efficient Power Level Exporter)
 - Uses **eBPF** to watch CPU instructions, cache misses, and context switches.
@@ -199,7 +200,7 @@ Finishing fast and letting the CPU return to "Idle" C-states is often the best s
 
 A specialized metrology agent written in **Rust**.
 
-- **Bridge:** Connects low-level metrics (RAPL, NVIDIA) to Prometheus.
+- **Bridge:** Connects low-level metrics (RAPL, GPU) to Prometheus.
 - **Embodied Carbon:** Can estimate the energy it took to *manufacture* the server, not just run it.
 - **Transparency:** Makes energy a "first-class citizen" alongside CPU and RAM metrics.
 
@@ -233,7 +234,7 @@ As technological progress increases the efficiency with which a resource is used
 # Looking forward ...
 
 ### [OpenTelemetry](https://opentelemetry.io/)
-Energy is being standardized! OTel *Semantic Conventions* mean your standard APM (Datadog, Jaeger) will soon show Energy by default.
+Energy is being standardized! OTel *Semantic Conventions* mean your standard APM (Application Performance Monitoring) tools will soon show Energy by default.
 
 ### [Carbon Aware SDK (Green Software Foundation)](https://carbon-aware-sdk.greensoftware.foundation/)
 - **Spatial Shifting:** Run the job in the region with the cleanest grid (e.g., Sweden vs. Poland).
@@ -256,8 +257,5 @@ Energy is being standardized! OTel *Semantic Conventions* mean your standard APM
 ### Mastodon/GitHub: `@ilmanzo`
 
 **Questions?**
-- *Does it work on ARM?*
-- *GPU measurements?*
-- *CI/CD integration?*
 
 ![bg right:45% fit](img/opensuse-logo-color.svg)
