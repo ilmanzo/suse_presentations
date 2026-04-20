@@ -32,16 +32,9 @@ theme: default
 *It's not just "being green"*
 
 - **Mobile & IoT:** Battery life is a competitive advantage.
-- **Data Centers:**
-
-   Small savings $\times$ thousands of servers = Millions of € and tons of $CO_2$.
+- **Data Centers:** Small savings $\times$ thousands of servers = Millions of € and tons of $CO_2$.
 - **Performance:** High energy = Heat = *Thermal Throttling*.
 - **The "Cloud" Gap:** "If I can't touch the hardware, how do I measure it?"
-
-<!--
-Question: "How many Joules does your last 'git push' cost?"
-Thermal Throttling: Hot code is slow code.
--->
 
 ---
 ## Basics math: Power vs. Energy
@@ -57,8 +50,7 @@ The *total* amount used over time.
 
 *Analogy: Distance traveled (200 km).*
 
-**Our Goal:**
-Minimize the total Joules for a specific task.
+**Our Goal:** Minimize the total Joules for a specific task.
 
 ![bg left:40% fit](img/busy-monkey-typing-calculate-vi8a0xx62pmya3xh.webp)
 
@@ -67,32 +59,48 @@ Minimize the total Joules for a specific task.
 
 **Running Average Power Limit**
 
-Modern CPUs (Intel/AMD) don't have physical "meters" inside, but they have very accurate **Power Models**.
+Modern CPUs don't have physical meters inside, but they have accurate **Power Models**.
 
 - **Domains:**
     - **PKG:** Entire CPU socket.
     - **CORE:** Computation cores.
     - **DRAM:** Memory controller & RAM.
-- **Accuracy:** Not a "truth" but a highly precise estimation based on hardware counters, voltage, and temperature.
+- **Accuracy:** Precise estimation based on hardware counters, voltage, and temperature.
 
 ---
-# The Linux Interface: powercap
+# Measuring from Code: powercap
 
-Linux exposes RAPL data via the `powercap` framework in the virtual filesystem:
-
-`/sys/class/powercap/intel-rapl/`
+Linux exposes RAPL via `/sys/class/powercap/intel-rapl/`. Let's build a Python decorator:
 
 ```python
-# A "quick and dirty" measurement script
-def read_energy():
-  with open("/sys/class/powercap/intel-rapl:0/energy_uj", "r") as f:
-    return int(f.read())    
+import time
 
-v0 = read_energy()
-time.sleep(1)
-v1 = read_energy()
-print(f"Average Power: {(v1-v0)/1e6:.1f} W")
+def read_uj(): return int(open("/sys/class/powercap/intel-rapl:0/energy_uj").read())
+
+def measure_energy(f):
+    def wrapper(*args, **kwargs):
+        e_start, t_start = read_uj(), time.time()
+        res = f(*args, **kwargs)
+        joules = (read_uj() - e_start) / 1e6
+        print(f"[{f.__name__}] {joules:.2f}J in {time.time()-t_start:.2f}s")
+        return res
+    return wrapper
 ```
+
+---
+# Using the Energy Decorator
+
+```python
+@measure_energy
+def process_data(records):
+    # Heavy computation here
+    return sorted(records, key=lambda x: x['value'])
+
+# Output:
+# [process_data] 12.45 Joules in 0.85s
+```
+
+*Perfect for local benchmarking of specific functions!*
 
 ---
 # The CLI Toolbox
@@ -104,150 +112,152 @@ print(f"Average Power: {(v1-v0)/1e6:.1f} W")
 | **perf** | **Precision surgical measurement** of a command. | `sudo perf stat -e power/energy-pkg/` |
 
 ---
-# Experiment 1: sort a 1GB text file
+# Experiment:  Sorting a 1GB text file 
 
-let's create a 1GB text file
-
-```
+Let's create a 1GB text file:
+```bash
 $ tr -dc 'A-Za-z0-9 ' < /dev/urandom | fold -w 80 | head -c 1G > big.txt
-$ wc -l big.txt
-13256071 big.txt
-
-$ sort big.txt > /dev/null
-```
-On my pc it takes ~25 seconds. 
-
----
-We could sort using parallelism, but Parallel sorting uses more cores (more Watts). Will it also consume more Energy (Joules)?
-
-```
-$ time sort --parallel=16 big.txt > /dev/null
-```
-Now it takes ~6.4 seconds.
-
----
-Measure 1: sort single-thread
-
-```
-$SORT_CMD1=sort --parallel=1 big.txt > /dev/null
-sudo perf stat -e power/energy-pkg/ -- $SORT_CMD1
-```
-
-Measure 2: sort multi-thread
-```
-$SORT_CMD16=sort --parallel=16 big.txt > /dev/null
-sudo perf stat -e power/energy-pkg/ -- $SORT_CMD16
 ```
 
 ---
-## Experiment results
+# Now we want it sorted!
 
-- **Single-threaded:** 25s @ ~18W = **455 Joules**
-- **16 Threads:** 6.4s @ ~24W = **151 Joules**
+```bash
+# Single-threaded
+$ sudo perf stat -e power/energy-pkg/ -- sort --parallel=1 big.txt > /dev/null
+# 25s @ ~18W = 455 Joules
 
-### Result: ~66% Energy Saving!
-Finishing fast and letting the CPU return to "Idle" C-states is often the best strategy.
+# 16 Threads
+$ sudo perf stat -e power/energy-pkg/ -- sort --parallel=16 big.txt > /dev/null
+# 6.4s @ ~24W = 151 Joules
+```
 
-![bg right:60% fit](img/chart.png)
+### Result: ~66% Energy Saving [just by adding an option]
 
 ---
-# Experiment 2: Calculate the 1,000,000th prime number.
 
-| Language | Time | Energy (J) |
-| :--- | :--- | :--- |
-| **Python** 🐍 | 50.2 s | 934 J |
-| **Rust** 🦀 | 2.1 s | 39 J |
+![chart](img/chart.png)
 
-**For this CPU-bound task, Rust is 23x more energy-efficient.**
+---
+# Experiment: Python vs Rust 
 
-*Note: We used the exact same algorithm for both.*
+Calculate the 1,000,000th prime number, using the same algorithm.
 
-*Source code is [available](https://github.com/ilmanzo/suse_presentations/tree/master/green_computing_from_cli)*
+# Python
+
+```python
+def is_prime(n):
+    if n <= 1: return False
+    if n <= 3: return True
+    if n % 2 == 0 or n % 3 == 0: return False
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
+```
+
+---
+# Rust
+
+```rust
+fn is_prime(n: u64) -> bool {
+    if n <= 1 { return false; }
+    if n <= 3 { return true; }
+    if n % 2 == 0 || n % 3 == 0 { return false; }
+    let mut i = 5;
+    while i * i <= n {
+        if n % i == 0 || n % (i + 2) == 0 {
+            return false;
+        }
+        i += 6;
+    }
+    true
+}
+```
+
+---
+# Results
+
+| Language | Nr | Time | Energy (J) |
+| :--- | :--- | :--- | :--- |
+| **Python** 🐍 | 15485863 |50.2 s | 934 J |
+| **Rust** 🦀 | 15485863 |2.1 s | 39 J |
+
+**Rust is 23x more energy-efficient.**
 
 ![bg left:30% fit](img/Python.svg)
 ![bg right:30% fit](img/Original_Ferris.svg)
 
----
-# Limitations & Best Practices
-
-- **What's missing?** RAPL doesn't (usually) measure GPUs, Disks, or Network cards.
-- **Repeatability:** Close your browser/Slack before measuring! Establish a **baseline**.
-- **Model vs. Truth:** It's an estimation, but it's consistent for comparison.
-- **Don't Over-optimize:** Sometimes the energy to *refactor* the code is more than the energy saved in 10 years of execution.
-
-![bg left:33% fit](img/electric-meter-calculating-3gc3nb6izehlfuuv.webp)
-
+Why?
+- No Garbage Collector overhead
+- Ahead-of-Time (AOT) compilation
+- Better data locality and zero-cost abstractions
 
 ---
-# Beyond Local: The cloud native challenge
+#### Catching Regressions in CI/CD
 
-**The Problem:** On the cloud, the hypervisor hides RAPL. `/sys/class/powercap` is empty!
+Standard cloud runners (VMs) lack power meters.
+Instead, track **proxy metrics** like CPU Instructions or Cycles.
 
-### a solution: [Kepler](https://github.com/sustainable-computing-io/kepler) (Kubernetes-based Efficient Power Level Exporter)
-- Uses **eBPF** to watch CPU instructions, cache misses, and context switches.
-- Uses **Machine Learning** to "guess" power consumption per Pod/Container.
-- **Goal:** "Joules per Request" in your Grafana dashboard.
+```yaml
+# .github/workflows/energy-test.yml
+steps:
+  - run: cargo build --release
+  - name: Measure Proxy Metrics
+    run: |
+      sudo perf stat -e instructions -x, -o perf.csv \
+        ./target/release/my_app --benchmark
+      
+      INSTR=$(awk -F, '/instructions/ {print $1}' perf.csv)
+      
+      # Fail build if instruction count spikes
+      if (( $(echo "$INSTR > 500000000" | bc -l) )); then
+        echo "Efficiency regression! $INSTR instructions used."
+        exit 1
+      fi
+```
+<!-- footer: "" -->
+---
+# Beyond Local: The cloud-ops view
+
+On the cloud, hypervisors hide RAPL. How do we measure containers?
+
+- **Kepler (eBPF):** Watches CPU instructions and cache misses. Uses ML to map them to power consumption per Kubernetes Pod.
+- **Scaphandre:** Rust agent bridging low-level metrics to Prometheus. Includes "Embodied Carbon" estimations.
+- **OpenTelemetry:** Energy is being standardized as a metric. APM tools will show Energy by default.
+
+*Shift your focus to "Joules per Request".*
 
 ---
-![center](img/carbon_dashboard.webp)
+# Jevons' paradox (The Rebound Effect)
 
-(image courtesy of CERN)
+*Why efficiency isn't enough.*
 
-<!-- _footer: "" -->
+As technological progress increases efficiency, the rate of consumption rises due to increasing demand.
 
----
-# The Modern Stack: [Scaphandre](https://github.com/hubblo-org/scaphandre)
-
-A specialized metrology agent written in **Rust**.
-
-- **Bridge:** Connects low-level metrics (RAPL, GPU) to Prometheus.
-- **Embodied Carbon:** Can estimate the energy it took to *manufacture* the server, not just run it.
-- **Transparency:** Makes energy a "first-class citizen" alongside CPU and RAM metrics.
-
----
-![bg contain](img/scaphandre_dashboard.webp)
-
-<!-- _footer: "" -->
-
----
-# The Jevons Paradox (The Rebound Effect)
-
-*Why efficiency isn't enough to save us.*
-
-As technological progress increases the efficiency with which a resource is used (reducing the amount necessary for any one use), the rate of consumption of that resource rises due to increasing demand.
-
-- **Example:** We moved from power-hungry spinning HDDs to highly efficient SSDs. Did we save energy? No, we just started storing 100x more data (4K video, massive databases) because it became cheap and fast.
-- **The AI Era:** More efficient GPUs don't mean less energy used; they mean we train *larger* and *more complex* models.
-- **The Takeaway:** *Technical efficiency must be paired with conscious consumption*.
+- **Example:** We moved to highly efficient SSDs. Result? We started storing 100x more data because it became cheap and fast.
+- **The AI Era:** More efficient GPUs don't mean less energy used; they mean we train *larger* models.
+- **The Takeaway:** Technical efficiency must be paired with conscious design.
 
 ---
 # What Can YOU Do?
 
-*Green computing isn't just for kernel developers.*
+1. **Optimize Hot Paths:** Benchmark and optimize the loops that run millions of times.
+2. **Choose the Right Tool:** Don't write CPU-bound microservices in interpreted languages if throughput/energy matters.
+3. **CI/CD Gates:** Track energy metrics just like code coverage or execution time.
+4. **Demand Transparency:** Ask cloud providers about energy metrics and carbon intensity.
 
-1. **Extend Hardware Lifespan:** ~70-80% of a laptop's lifetime carbon footprint is **Embodied Carbon** (manufacturing). Keep your devices for 5 years instead of 2.
-2. **Embrace Dark Mode:** On modern OLED screens, black pixels are physically turned off, saving battery and energy.
-3. **Temporal Shifting at Home:** Schedule heavy tasks (system updates, backups, massive downloads) overnight when grid energy is usually cleaner and cheaper.
-4. **Demand Transparency:** Ask your cloud providers and software vendors about their energy metrics and sustainability goals.
-
----
-# Looking forward ...
-
-### [OpenTelemetry](https://opentelemetry.io/)
-Energy is being standardized! OTel *Semantic Conventions* mean your standard APM (Application Performance Monitoring) tools will soon show Energy by default.
-
-### [Carbon Aware SDK (Green Software Foundation)](https://carbon-aware-sdk.greensoftware.foundation/)
-- **Spatial Shifting:** Run the job in the region with the cleanest grid (e.g., Sweden vs. Poland).
-- **Temporal Shifting:** Wait 3 hours to run the batch job when the wind is blowing.
+![bg left:33% fit](img/electric-meter-calculating-3gc3nb6izehlfuuv.webp)
 
 ---
 # Summary & Takeaways
 
 1. **Efficiency = Quality:** Green code is often just *good* code.
-2. **Measure, Don't Guess:** Use `perf stat` for surgical benchmarks.
-3. **Race to Sleep:** Optimization usually beats under-clocking.
-4. **Cloud is Possible:** Tools like **Kepler** are bringing transparency to shared hardware.
-5. **Standardize:** Look into **OpenTelemetry** for long-term monitoring.
+2. **Measure in Code:** Build simple wrappers around `powercap`.
+3. **Automate It:** Put `perf stat` in your CI pipeline.
+4. **Race to Sleep:** Finish work quickly so hardware can idle.
 
 ---
 # Thanks for your attention!
