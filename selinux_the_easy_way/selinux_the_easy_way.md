@@ -6,7 +6,7 @@ backgroundColor: #fff
 backgroundImage: url('https://marp.app/assets/hero-background.jpg')
 ---
 
-# SELinux the Easy Way
+# 🛡️ SELinux the Easy Way
 ### A Practical Guide for QA Engineers
 
 ### Andrea Manzini
@@ -16,7 +16,7 @@ May 2026
 
 ---
 
-# Agenda
+# 📋 Agenda
 
 1. Why QA Cares About SELinux
 2. Labels: What They Are, How to Work With Them
@@ -27,7 +27,9 @@ May 2026
 
 ---
 
-# Why QA Cares About SELinux
+# 🎯 Why QA Cares About SELinux
+
+![bg right:35%](images/works_on_my_machine.jpg)
 
 * SELinux is the **default MAC** on SLES 16, Leap 16, and Tumbleweed
 * Customers run SELinux in **Enforcing** mode — so must QA
@@ -39,7 +41,7 @@ May 2026
 
 ---
 
-# What is a Label?
+# 🏷️ What is a Label?
 
 Every object in the system has a **security context** (label):
 
@@ -50,7 +52,7 @@ system_u : system_r : httpd_t : s0:c1,c2
 
 ---
 
-# Label Fields Explained
+# 🔍 Label Fields Explained
 
 **User** (`system_u`, `unconfined_u`, `staff_u`)
 * SELinux user — mapped from Linux users. Controls which roles are available.
@@ -73,7 +75,7 @@ system_u : system_r : httpd_t : s0:c1,c2
 
 ---
 
-# Viewing Labels
+# 👀 Viewing Labels
 
 ```bash
 # Files
@@ -93,7 +95,7 @@ unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 
 ---
 
-# Changing Labels
+# ✏️ Changing Labels
 
 | Tool | Permanent? | Use case |
 |------|-----------|----------|
@@ -104,7 +106,9 @@ unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 
 ---
 
-# The mv/cp Trap
+# ⚠️ The mv/cp Trap
+
+![bg right:30%](images/its_a_trap.jpg)
 
 ```bash
 # Create a test config
@@ -127,7 +131,7 @@ unconfined_u:object_r:user_tmp_t:s0         # WRONG! nginx can't read this
 
 ---
 
-# QA Angle: Labels in Bug Reports
+# 🐛 QA Angle: Labels in Bug Reports
 
 When filing a bug where SELinux might be involved, **always include**:
 
@@ -149,7 +153,7 @@ A bug report that says "permission denied" without this info is **incomplete**.
 
 ---
 
-# Policies: The Rulebook
+# 📖 Policies: The Rulebook
 
 A **policy** is the set of rules that defines what each domain (process type) is allowed to do.
 
@@ -182,7 +186,7 @@ SLES 16 ships **440+ policy modules** out of the box (based on Fedora upstream p
 
 ---
 
-# Policy Rules: A Concrete Example
+# 🧩 Policy Rules: A Concrete Example
 
 A Type Enforcement (TE) rule looks like this:
 
@@ -213,7 +217,7 @@ If no rule exists → **denied**. That's the "default deny" principle.
 
 ---
 
-# Where Do Policies Live? (on SUSE)
+# 📂 Where Do Policies Live? (on SUSE)
 
 ```
 /etc/selinux/
@@ -239,7 +243,9 @@ If no rule exists → **denied**. That's the "default deny" principle.
 
 ---
 
-# SELinux Modes
+# 🔀 SELinux Modes
+
+![bg right:30%](images/one_does_not_simply.jpg)
 
 | Mode | Behavior | When to use |
 |------|----------|-------------|
@@ -262,7 +268,7 @@ SELINUX=enforcing
 
 ---
 
-# Booleans: Policy Switches
+# 🔘 Booleans: Policy Switches
 
 Modify policy behavior **without writing custom rules**.
 
@@ -281,7 +287,7 @@ The **`-P`** flag = persistent across reboots. Without it, the change is lost on
 
 ---
 
-# Port Labeling
+# 🔌 Port Labeling
 
 SELinux controls which processes can **bind** to which ports.
 
@@ -303,7 +309,7 @@ Same applies to any service using a non-standard port.
 
 ---
 
-# File Context Rules
+# 📁 File Context Rules
 
 The **permanent** way to manage labels for custom paths:
 
@@ -323,7 +329,9 @@ system_u:object_r:httpd_sys_content_t:s0 index.html
 
 ---
 
-# QA Angle: Testing with SELinux
+# ✅ QA Angle: Testing with SELinux
+
+![bg right:33%](images/this_is_fine.jpg)
 
 **Rules for QA test environments:**
 
@@ -342,7 +350,7 @@ system_u:object_r:httpd_sys_content_t:s0 index.html
 
 ---
 
-# Where to Look for Denials
+# 🔎 Where to Look for Denials
 
 ```bash
 # The audit log (primary source)
@@ -362,7 +370,7 @@ $ sudo journalctl -t audit --since "10 minutes ago" | grep AVC
 
 ---
 
-# Anatomy of a Denial
+# 🔬 Anatomy of a Denial
 
 ```
 type=AVC msg=audit(1716000000.123:456): avc:  denied  { read }
@@ -385,7 +393,7 @@ type=AVC msg=audit(1716000000.123:456): avc:  denied  { read }
 
 ---
 
-# The Quick Check: Is It SELinux?
+# ⚡ The Quick Check: Is It SELinux?
 
 ```bash
 # Step 1: Something fails. Is SELinux blocking it?
@@ -406,7 +414,7 @@ $ sudo ausearch -m AVC -ts recent
 
 ---
 
-# audit2why & audit2allow
+# 🔧 audit2why & audit2allow
 
 ```bash
 # WHY was it denied?
@@ -428,7 +436,7 @@ $ sudo semodule -i my_nginx_fix.pp
 
 ---
 
-# setroubleshoot / sealert
+# 🚨 setroubleshoot / sealert
 
 Human-readable analysis of denials:
 
@@ -450,7 +458,7 @@ If you want to allow httpd_t to read user_tmp_t files:
 
 ---
 
-# QA Angle: Filing SELinux Bugs
+# 📝 QA Angle: Filing SELinux Bugs
 
 **Template for SELinux-related bug reports:**
 
@@ -479,7 +487,7 @@ $ matchpathcon /etc/nginx/conf.d/mysite.conf
 
 ---
 
-# Demo Setup
+# 🧪 Demo Setup
 
 **Prerequisites**: openSUSE Tumbleweed with `distrobox` and `podman` installed.
 
@@ -501,7 +509,7 @@ Note: actual enforcement requires a system with SELinux enabled in the kernel (T
 
 ---
 
-# Demo: nginx Can't Read Its Config
+# 💥 Demo: nginx Can't Read Its Config
 
 ```bash
 # 1. Create a config file in /tmp
@@ -528,7 +536,7 @@ ls -Z /etc/nginx/conf.d/demo.conf
 
 ---
 
-# Demo: Service on a Non-standard Port
+# 🚪 Demo: Service on a Non-standard Port
 
 ```bash
 # 1. Check which ports httpd_t can bind to
@@ -551,7 +559,7 @@ sudo semanage port -l | grep http_port
 
 ---
 
-### QA Cheat Sheet
+### 📋 QA Cheat Sheet
 
 | Task | Command |
 |------|---------|
@@ -568,7 +576,7 @@ sudo semanage port -l | grep http_port
 
 ---
 
-# Thank You!
+# 🙏 Thank You!
 
 **Questions?**
 
