@@ -148,14 +148,14 @@ SLES 16 ships **440+ policy modules** out of the box (based on Fedora upstream p
   sudo zypper install selinux-policy-devel
   ls /usr/share/selinux/devel/
 
-  # Decompile a loaded module to readable rules
-  sudo semodule -E ftp  # extracts ftp module
-  sedismod fpd.pp       # disassemble binary policy
+  # Extract a loaded module to CIL (text) format
+  sudo semodule -E ftpd            # writes ftpd.cil in cwd
+  sedismod ftpd.pp                 # disassemble .pp binary policy
 
   # Or use sesearch to query rules directly
   sudo zypper install setools-console
-  sesearch --allow -s fpd_t          # all allow rules for httpd
-  sesearch --allow -t etc_t            # all rules targeting etc_t
+  sesearch --allow -s ftpd_t          # all allow rules for ftpd
+  sesearch --allow -t etc_t           # all rules targeting etc_t
 ```
 
 ---
@@ -183,7 +183,7 @@ You can query existing rules with `sesearch`:
 $ sesearch --allow -s httpd_t -t httpd_sys_content_t -c file
 allow httpd_t httpd_sys_content_t:file { getattr ioctl lock map open read };
 
-# What can WRITE to /var/log/httpd?
+# What can write to files labeled httpd_log_t?
 $ sesearch --allow -t httpd_log_t -c file -p write
 allow httpd_t httpd_log_t:file { append create write ... };
 ```
@@ -292,27 +292,34 @@ unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 **QA tip**: always use `semanage fcontext` + `restorecon` in test procedures. `chcon` changes silently vanish after `restorecon -R` or a full relabel.
 
 ---
-
-# ⚠️ The mv/cp Trap
-
-![bg left:25% fit](images/its_a_trap.jpg)
+#### ⚠️ The mv/cp Trap
 
 ```bash
-# Create a test config
+# when a script creates a test config in temp directory
 $ echo "server {}" > /tmp/mysite.conf
 $ ls -Z /tmp/mysite.conf
 unconfined_u:object_r:user_tmp_t:s0  /tmp/mysite.conf
+```
 
-# COPY creates a new file → labeled by file context rules
+![trap](images/its_a_trap.jpg)
+
+---
+#### ⚠️ The mv/cp Trap
+**COPY** creates a new file inode → file will be labeled by context rules
+
+```
 $ cp /tmp/mysite.conf /etc/nginx/conf.d/
 $ ls -Z /etc/nginx/conf.d/mysite.conf
 unconfined_u:object_r:httpd_config_t:s0     # correct!
+```
 
-# MOVE keeps original label
+ *MOVE* keeps original label
+```
 $ mv /tmp/mysite.conf /etc/nginx/conf.d/
 $ ls -Z /etc/nginx/conf.d/mysite.conf
 unconfined_u:object_r:user_tmp_t:s0         # WRONG! nginx can't read this
 ```
+
 
 **Fix**: `restorecon -v /etc/nginx/conf.d/mysite.conf`
 
@@ -403,8 +410,6 @@ system_u:object_r:httpd_sys_content_t:s0 index.html
 
 # ✅ QA Angle: Testing with SELinux
 
-![bg right:40% fit](images/this_is_fine.jpg)
-
 **Rules for QA test environments:**
 
 1. **Always test in Enforcing mode** — matches customer environments
@@ -412,13 +417,6 @@ system_u:object_r:httpd_sys_content_t:s0 index.html
 3. Never put `setenforce 0` in test setup scripts
 4. After installing/upgrading a package, run `restorecon -R` on its paths
 5. If a test fails with "Permission denied", check SELinux **before** filing a DAC bug
-
-**Test matrix consideration:**
-| Scenario | SELinux Mode | Expected |
-|----------|-------------|----------|
-| Normal operation | Enforcing | Pass |
-| After relabel | Enforcing | Pass |
-| Fresh install | Enforcing | Pass |
 
 ---
 
@@ -625,4 +623,4 @@ Andrea Manzini
 Software Quality Engineer @ SUSE
 
 Lab setup & slides:
-`https://github.com/andreamanzini/presentations/selinux_the_easy_way`
+`https://github.com/ilmanzo/suse_presentations/tree/master/selinux_the_easy_way`
