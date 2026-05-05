@@ -1,9 +1,9 @@
 ---
 marp: true
 theme: default
+class: invert
 paginate: true
-backgroundColor: #fff
-backgroundImage: url('https://marp.app/assets/hero-background.jpg')
+backgroundImage: linear-gradient(to bottom right, #171c26, #0c322c)
 ---
 
 # 🛡️ SELinux the Easy Way
@@ -18,32 +18,210 @@ May 2026
 
 # 📋 Agenda
 
-1. Why QA Cares About SELinux
-2. Labels: What They Are, How to Work With Them
-3. Managing SELinux: Modes, Booleans, Ports
-4. Troubleshooting Denials
-5. Live Demo: Break It, Find It, Fix It
-6. QA Cheat Sheet
+1. What is SELinux? & Why SELinux?
+2. Why QA Cares About SELinux
+3. How SELinux Works
+4. Policies: The Rulebook
+5. Labels: What They Are, How to Work With Them
+6. Managing SELinux: Modes, Booleans, Ports
+7. Troubleshooting Denials
+8. Live Demo: Break It, Find It, Fix It
+9. QA Cheat Sheet
 
 ---
 
+## 🤔 What's SELinux?
+
+**SELinux** (Security-Enhanced Linux) is a security architecture for Linux systems that provides Mandatory Access Control (MAC).
+
+* **MAC vs. DAC:** Unlike traditional Linux permissions (Discretionary Access Control) where users control their files, MAC enforces policies set by the administrator.
+* **Default Deny:** If there isn't an explicit rule allowing an action, it is blocked.
+* Originally developed by the NSA, now integrated into the mainline Linux kernel.
+* Implemented via Linux Security Modules (LSM).
+
+---
+
+# 🛡️ Why SELinux?
+
+* **Containment:** If a service (like a web server) is compromised, SELinux prevents the attacker from accessing the rest of the system or other services.
+* **Privilege Escalation Prevention:** Even an exploit running as `root` can be contained if SELinux policies restrict what that specific `root` process can do.
+* **Zero-Day Protection:** Helps mitigate the impact of unknown vulnerabilities by enforcing strict behavioral boundaries.
+* **Compliance:** Often required by security standards and enterprise environments.
+
+---
 # 🎯 Why QA Cares About SELinux
 
-![bg right:35%](images/works_on_my_machine.jpg)
 
 * SELinux is the **default MAC** on SLES 16, Leap 16, and Tumbleweed
 * Customers run SELinux in **Enforcing** mode — so must QA
-* Testing with SELinux OFF = **shipping untested code**
 * SELinux denials look like permission errors — easy to misdiagnose
 * A proper bug report with SELinux context saves developers **hours**
 
+---
+# Happens every time
+
+![bg right:50% fit](images/works_on_my_machine.jpg)
+
 > "It works on my machine" — because you had SELinux disabled.
+
+---
+# 🔀 SELinux Modes
+
+![bg right:30% fit](images/one_does_not_simply.jpg)
+
+| Mode | Behavior | When to use |
+|------|----------|-------------|
+| **Enforcing** | Blocks + logs denials | Always (production & testing) |
+| **Permissive** | Logs but does NOT block | Diagnosing SELinux issues only |
+| **Disabled** | SELinux not initialized | Never (requires reboot + full relabel to re-enable) |
+
+---
+
+```bash
+$ getenforce                    # Check current mode
+Enforcing
+
+$ sudo setenforce 0             # Switch to Permissive (temporary)
+$ sudo setenforce 1             # Back to Enforcing
+
+# Permanent: edit /etc/selinux/config
+SELINUX=enforcing
+```
+
+
+---
+### ⚙️ [How SELinux Works](https://docs.rockylinux.org/9/guides/security/learning_selinux/) (see link for picture)
+
+SELinux acts as a gatekeeper between a **Subject** (usually a process) and an **Object** (a file, directory, port, etc.).
+
+1. **Subject Request:** A process requests an action (e.g., `read`) on an object (e.g., a file).
+2. **DAC Check:** Standard Linux permissions (Owner/Group/Others) are checked first. If this fails, access is denied immediately.
+
+but there's more ...
+
+---
+### ⚙️ [How SELinux Works](https://docs.rockylinux.org/9/guides/security/learning_selinux/) 
+
+
+3. **MAC Check:** If DAC passes, SELinux steps in. It looks at the **scontext** (source context — the process) and the **tcontext** (target context — the file).
+4. **Policy Evaluation:** The SELinux policy is consulted to see if there is an explicit rule allowing the scontext to perform the requested action on the tcontext.
+5. **Decision:** Allowed if a rule exists, blocked otherwise (Default Deny).
+
+---
+
+# 📖 Policies: The Rulebook
+
+A **policy** is the set of rules that defines what each domain (process type) is allowed to do.
+
+**Policy types** (set in `/etc/selinux/config`):
+
+| Policy | Description | Use case |
+|--------|------------|----------|
+| **targeted** | Only known services are confined, everything else runs unconfined | Default on SLES 16 / Tumbleweed / Leap 16 |
+| **minimum** | Like targeted but fewer services confined | Minimal environments (not shipped on SUSE) |
+| **mls** | Full Multi-Level Security | Government/military only |
+
+---
+**Policies are modular** — built from independent `.pp` modules:
+
+```bash
+# List loaded policy modules
+$ sudo semodule -l | head
+abrt
+account-utils
+accountsd
+acct
+afs
+
+# Install a custom module
+$ sudo semodule -i my_fix.pp
+
+# Remove a module
+$ sudo semodule -r my_fix
+```
+
+SLES 16 ships **440+ policy modules** out of the box (based on Fedora upstream policy with SUSE-specific patches). Custom modules are how you extend the policy. `audit2allow -M` generates them.
+
+---
+```bash
+  # See specific module source (if selinux-policy-devel installed)
+  sudo zypper install selinux-policy-devel
+  ls /usr/share/selinux/devel/
+
+  # Decompile a loaded module to readable rules
+  sudo semodule -E ftp  # extracts ftp module
+  sedismod fpd.pp       # disassemble binary policy
+
+  # Or use sesearch to query rules directly
+  sudo zypper install setools-console
+  sesearch --allow -s fpd_t          # all allow rules for httpd
+  sesearch --allow -t etc_t            # all rules targeting etc_t
+```
+
+---
+# 🧩 Policy Rules: A Concrete Example
+
+A Type Enforcement (TE) rule looks like this:
+
+```
+allow  httpd_t  httpd_sys_content_t : file  { read getattr open };
+─────  ───────  ──────────────────   ────   ──────────────────────
+  │     source       target          class      permissions
+  │     domain       type
+  │
+  └─ "allow this to happen"
+```
+
+**Read it as**: "A process running in the `httpd_t` domain is allowed to `read`, `getattr`, and `open` files labeled `httpd_sys_content_t`."
+
+---
+# 🧩 Policy Rules: A Concrete Example
+You can query existing rules with `sesearch`:
+
+```bash
+# What can httpd_t read?
+$ sesearch --allow -s httpd_t -t httpd_sys_content_t -c file
+allow httpd_t httpd_sys_content_t:file { getattr ioctl lock map open read };
+
+# What can WRITE to /var/log/httpd?
+$ sesearch --allow -t httpd_log_t -c file -p write
+allow httpd_t httpd_log_t:file { append create write ... };
+```
+
+If no rule exists → **denied**. That's the "default deny" principle.
+
+---
+# 📂 Where Do Policies Live? (on SUSE)
+
+```
+/etc/selinux/
+├── config                      # SELINUX=enforcing, SELINUXTYPE=targeted
+└── targeted/
+    ├── policy/policy.33        # compiled binary policy (loaded by kernel)
+    ├── contexts/               # default contexts for logins, services, etc.
+    └── modules/                # installed policy modules (recently migrated here)
+
+/usr/share/selinux/targeted/    # source .pp modules shipped by packages
+```
+---
+**Key packages** (zypper):
+
+| Package | Contents |
+|---------|----------|
+| `selinux-policy` | Base policy, file contexts, core types |
+| `selinux-policy-targeted` | The targeted policy variant (440+ modules) |
+| `container-selinux` | Policy for Podman/Docker containers |
+| `policycoreutils-python-utils` | `semanage`, `audit2allow`, `audit2why` |
+
+**SUSE-specific**: policy modules recently migrated from `/var/lib/selinux` to `/etc/selinux` so they're covered by BTRFS snapshots and rollbacks.
 
 ---
 
 # 🏷️ What is a Label?
 
-Every object in the system has a **security context** (label):
+Every object in the system has a **security context** (label).
+
+A label is made of 4 parts: user, role, type, level
 
 ```
 system_u : system_r : httpd_t : s0:c1,c2
@@ -51,27 +229,36 @@ system_u : system_r : httpd_t : s0:c1,c2
 ```
 
 ---
-
-# 🔍 Label Fields Explained
+## 🔍 Label Fields Explained : User
 
 **User** (`system_u`, `unconfined_u`, `staff_u`)
-* SELinux user — mapped from Linux users. Controls which roles are available.
+* Used by **RBAC (Role-Based Access Control)** policies.
+* Maps Linux users to SELinux users. Controls which roles are available to a user.
 * `system_u` = system daemons, `unconfined_u` = regular users (no restrictions)
-* Check mappings: `semanage login -l`
+
+---
+## 🔍 Label Fields Explained : Role
 
 **Role** (`system_r`, `object_r`, `unconfined_r`)
-* Bridges users to types — limits which domains a user can enter
+* Also used by **RBAC**.
+* Bridges users to types — dictates which domains (types) a user can transition into.
 * `system_r` = system processes, `object_r` = files/passive objects
-* Mostly relevant in strict/MLS policies, less so in targeted policy
+
+---
+## 🔍 Label Fields Explained: Type
 
 **Type** (`httpd_t`, `user_home_t`, `tmp_t`)
-* **The field you'll work with 95% of the time**
-* Processes have a **domain** (`httpd_t`), files have a **type** (`httpd_sys_content_t`)
-* Policy rules: `allow <domain> <type> : <class> { <permissions> };`
+* Used by **TE (Type Enforcement)** policies.
+* **The field you'll work with 95% of the time.** In "targeted" policy, almost all rules check this.
+* Processes have a **domain** (`httpd_t`), files have a **type** (`httpd_sys_content_t`).
+* Rule format: `allow <domain> <type> : <class> { <permissions> };`
+
+---
+## 🔍 Label Fields Explained: Level
 
 **Level** (`s0`, `s0:c1,c2`)
-* MLS sensitivity + MCS categories. Used for container isolation.
-* See: [Red Hat MLS/MCS docs](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/using_selinux/using-multi-level-security-mls_using-selinux)
+* Used by **MLS/MCS (Multi-Level / Multi-Category Security)** policies.
+* Defines sensitivity and categories. Crucial for **Container isolation** (e.g., Podman gives each container a unique category like `c1,c2`).
 
 ---
 
@@ -108,7 +295,7 @@ unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 
 # ⚠️ The mv/cp Trap
 
-![bg right:30%](images/its_a_trap.jpg)
+![bg left:25% fit](images/its_a_trap.jpg)
 
 ```bash
 # Create a test config
@@ -116,7 +303,7 @@ $ echo "server {}" > /tmp/mysite.conf
 $ ls -Z /tmp/mysite.conf
 unconfined_u:object_r:user_tmp_t:s0  /tmp/mysite.conf
 
-# COPY inherits destination label
+# COPY creates a new file → labeled by file context rules
 $ cp /tmp/mysite.conf /etc/nginx/conf.d/
 $ ls -Z /etc/nginx/conf.d/mysite.conf
 unconfined_u:object_r:httpd_config_t:s0     # correct!
@@ -143,128 +330,13 @@ ls -Z /path/to/file
 ps -eZ | grep <process_name>
 
 # 3. What label the file SHOULD have
-matchpathcon /path/to/file
+restorecon -n -v /path/to/file
 
 # 4. Current SELinux mode
 getenforce
 ```
 
 A bug report that says "permission denied" without this info is **incomplete**.
-
----
-
-# 📖 Policies: The Rulebook
-
-A **policy** is the set of rules that defines what each domain (process type) is allowed to do.
-
-**Policy types** (set in `/etc/selinux/config`):
-
-| Policy | Description | Use case |
-|--------|------------|----------|
-| **targeted** | Only known services are confined, everything else runs unconfined | Default on SLES 16 / Tumbleweed / Leap 16 |
-| **minimum** | Like targeted but fewer services confined | Minimal environments |
-| **mls** | Full Multi-Level Security | Government/military only |
-
----
-**Policies are modular** — built from independent `.pp` modules:
-
-```bash
-# List loaded policy modules
-$ sudo semodule -l | head
-httpd    1.14.0
-nginx    1.12.1
-container  2.200.0
-
-# Install a custom module
-$ sudo semodule -i my_fix.pp
-
-# Remove a module
-$ sudo semodule -r my_fix
-```
-
-SLES 16 ships **440+ policy modules** out of the box (based on Fedora upstream policy with SUSE-specific patches). Custom modules are how you extend the policy — `audit2allow -M` generates them.
-
----
-
-# 🧩 Policy Rules: A Concrete Example
-
-A Type Enforcement (TE) rule looks like this:
-
-```
-allow  httpd_t  httpd_sys_content_t : file  { read getattr open };
-─────  ───────  ──────────────────   ────   ──────────────────────
-  │     source       target          class      permissions
-  │     domain       type
-  │
-  └─ "allow this to happen"
-```
-
-**Read it as**: "A process running in the `httpd_t` domain is allowed to `read`, `getattr`, and `open` files labeled `httpd_sys_content_t`."
-
-You can query existing rules with `sesearch`:
-
-```bash
-# What can httpd_t read?
-$ sesearch --allow -s httpd_t -t httpd_sys_content_t -c file
-allow httpd_t httpd_sys_content_t:file { getattr ioctl lock map open read };
-
-# What can WRITE to /var/log/httpd?
-$ sesearch --allow -t httpd_log_t -c file -p write
-allow httpd_t httpd_log_t:file { append create write ... };
-```
-
-If no rule exists → **denied**. That's the "default deny" principle.
-
----
-
-# 📂 Where Do Policies Live? (on SUSE)
-
-```
-/etc/selinux/
-├── config                      # SELINUX=enforcing, SELINUXTYPE=targeted
-└── targeted/
-    ├── policy/policy.33        # compiled binary policy (loaded by kernel)
-    ├── contexts/               # default contexts for logins, services, etc.
-    └── modules/                # installed policy modules (recently migrated here)
-
-/usr/share/selinux/targeted/    # source .pp modules shipped by packages
-```
-
-**Key packages** (zypper):
-
-| Package | Contents |
-|---------|----------|
-| `selinux-policy` | Base policy, file contexts, core types |
-| `selinux-policy-targeted` | The targeted policy variant (440+ modules) |
-| `container-selinux` | Policy for Podman/Docker containers |
-| `policycoreutils-python-utils` | `semanage`, `audit2allow`, `audit2why` |
-
-**SUSE-specific**: policy modules recently migrated from `/var/lib/selinux` to `/etc/selinux` so they're covered by BTRFS snapshots and rollbacks.
-
----
-
-# 🔀 SELinux Modes
-
-![bg right:30%](images/one_does_not_simply.jpg)
-
-| Mode | Behavior | When to use |
-|------|----------|-------------|
-| **Enforcing** | Blocks + logs denials | Always (production & testing) |
-| **Permissive** | Logs but does NOT block | Diagnosing SELinux issues only |
-| **Disabled** | Kernel support off | Never (requires reboot + relabel to re-enable) |
-
----
-
-```bash
-$ getenforce                    # Check current mode
-Enforcing
-
-$ sudo setenforce 0             # Switch to Permissive (temporary)
-$ sudo setenforce 1             # Back to Enforcing
-
-# Permanent: edit /etc/selinux/config
-SELINUX=enforcing
-```
 
 ---
 
@@ -331,7 +403,7 @@ system_u:object_r:httpd_sys_content_t:s0 index.html
 
 # ✅ QA Angle: Testing with SELinux
 
-![bg right:33%](images/this_is_fine.jpg)
+![bg right:40% fit](images/this_is_fine.jpg)
 
 **Rules for QA test environments:**
 
@@ -366,11 +438,10 @@ $ sudo journalctl -t audit --since "10 minutes ago" | grep AVC
 **No denials showing?** Check:
 - Is `auditd` running? (`systemctl status auditd`)
 - Is SELinux actually in Enforcing? (`getenforce`)
-- Some denials are "dontaudit" — use `semodule -DB` to temporarily disable dontaudit rules
+- Some denials are "dontaudit" — use `semodule -DB` to disable dontaudit rules and rebuild policy (re-enable with `semodule -B`)
 
 ---
-
-# 🔬 Anatomy of a Denial
+### 🔬 Anatomy of a Denial
 
 ```
 type=AVC msg=audit(1716000000.123:456): avc:  denied  { read }
@@ -392,8 +463,7 @@ type=AVC msg=audit(1716000000.123:456): avc:  denied  { read }
 **Read it as**: "nginx (`httpd_t`) tried to read a file labeled `user_tmp_t` → denied"
 
 ---
-
-# ⚡ The Quick Check: Is It SELinux?
+## ⚡ Quick Check: is it a SELinux issue ?
 
 ```bash
 # Step 1: Something fails. Is SELinux blocking it?
@@ -457,43 +527,13 @@ If you want to allow httpd_t to read user_tmp_t files:
 `sealert` ranks suggestions by confidence — **start from the top**.
 
 ---
-
-# 📝 QA Angle: Filing SELinux Bugs
-
-**Template for SELinux-related bug reports:**
-
-```
-## Environment
-- OS: SLES 16 SP0 / openSUSE Tumbleweed
-- SELinux mode: Enforcing
-- Package version: nginx-1.26.1-1.suse
-
-## Problem
-nginx fails to start after config file was deployed by automation.
-
-## SELinux Data
-### AVC Denial:
-<paste from: ausearch -m AVC -ts recent>
-
-### Diagnosis:
-<paste from: ausearch -m AVC -ts recent | audit2why>
-
-### Current vs Expected Labels:
-$ ls -Z /etc/nginx/conf.d/mysite.conf
-unconfined_u:object_r:user_tmp_t:s0       # ACTUAL
-$ matchpathcon /etc/nginx/conf.d/mysite.conf
-/etc/nginx/conf.d/mysite.conf  httpd_config_t  # EXPECTED
-```
-
----
-
 # 🧪 Demo Setup
 
 **Prerequisites**: openSUSE Tumbleweed with `distrobox` and `podman` installed.
 
 ```bash
 # From this repo's directory:
-$ ./setup-lab.sh
+$ ./selinux-lab.sh
 
 # This will:
 # 1. Create a Tumbleweed distrobox named "selinux-lab"
@@ -569,7 +609,7 @@ sudo semanage port -l | grep http_port
 | Find recent denials | `ausearch -m AVC -ts recent` |
 | Explain a denial | `ausearch -m AVC -ts recent \| audit2why` |
 | Fix a wrong label | `restorecon -v /path/to/file` |
-| Check expected label | `matchpathcon /path/to/file` |
+| Check expected label | `restorecon -n -v /path/to/file` |
 | Add permanent label rule | `semanage fcontext -a -t <type> '/path(/.*)?'` |
 | Toggle boolean | `setsebool -P <bool> on` |
 | Quick SELinux test | `setenforce 0` → test → `setenforce 1` |
@@ -585,4 +625,4 @@ Andrea Manzini
 Software Quality Engineer @ SUSE
 
 Lab setup & slides:
-`github.com/andreamanzini/presentations/selinux_the_easy_way`
+`https://github.com/andreamanzini/presentations/selinux_the_easy_way`
