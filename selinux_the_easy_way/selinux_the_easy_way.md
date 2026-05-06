@@ -14,25 +14,28 @@ backgroundImage: linear-gradient(to bottom right, #171c26, #0c322c)
 
 May 2026
 
----
+![bg right:40% fit](images/SUSE_Logo-vert_L_Green-pos_sRGB.svg)
 
+---
+![bg left:40% fit](images/256px-Police.png)
 # 📋 Agenda
 
-1. What is SELinux? & Why SELinux?
-2. Why QA Cares About SELinux
-3. How SELinux Works
-4. Policies: The Rulebook
-5. Labels: What They Are, How to Work With Them
-6. Managing SELinux: Modes, Booleans, Ports
-7. Troubleshooting Denials
-8. Live Demo: Break It, Find It, Fix It
-9. QA Cheat Sheet
+1. SELinux Basics and QA Context
+2. Modes: Enforcing, Permissive, Disabled
+3. Access Decisions: DAC + MAC
+4. Policies and Rule Anatomy
+5. Labels: Understand, Inspect, Fix
+6. Booleans, Ports, and File Contexts
+7. QA Testing Guidelines
+8. Troubleshooting Denials
+9. Live Demos
+10. QA Cheat Sheet
 
 ---
 
 ## 🤔 What's SELinux?
 
-**SELinux** (Security-Enhanced Linux) is a security architecture for Linux systems that provides Mandatory Access Control (MAC).
+**[SELinux](https://github.com/SELinuxProject)** (Security-Enhanced Linux) is a security architecture for Linux systems that provides Mandatory Access Control (MAC). 
 
 * **MAC vs. DAC:** Unlike traditional Linux permissions (Discretionary Access Control) where users control their files, MAC enforces policies set by the administrator.
 * **Default Deny:** If there isn't an explicit rule allowing an action, it is blocked.
@@ -67,7 +70,7 @@ May 2026
 ---
 # 🔀 SELinux Modes
 
-![bg right:30% fit](images/one_does_not_simply.jpg)
+![bg left:30% fit](images/one_does_not_simply.jpg)
 
 | Mode | Behavior | When to use |
 |------|----------|-------------|
@@ -78,13 +81,17 @@ May 2026
 ---
 
 ```bash
+$ sestatus
+```
+
+```bash
 $ getenforce                    # Check current mode
 Enforcing
 
 $ sudo setenforce 0             # Switch to Permissive (temporary)
 $ sudo setenforce 1             # Back to Enforcing
 
-# Permanent: edit /etc/selinux/config
+# Permanent: edit /etc/selinux/config and reboot
 SELINUX=enforcing
 ```
 
@@ -623,4 +630,6 @@ Andrea Manzini
 Software Quality Engineer @ SUSE
 
 Lab setup & slides:
-`https://github.com/ilmanzo/suse_presentations/tree/master/selinux_the_easy_way`
+https://github.com/ilmanzo/suse_presentations
+
+![bg right:30% fit](images/SUSE_Logo-vert_L_Green-pos_sRGB.svg)

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(distrobox list *)",
+      "Bash(podman ps *)",
+      "Bash(podman logs *)",
+      "Bash(podman start *)",
+      "Bash(podman exec *)",
+      "Bash(podman stop *)"
+    ]
+  }
+}

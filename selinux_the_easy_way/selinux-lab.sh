@@ -25,6 +25,12 @@ fi
 echo "Creating distrobox '$LAB_NAME' with $IMAGE..."
 distrobox create --name "$LAB_NAME" --image "$IMAGE" --yes
 
+# mandoc conflicts with man package that distrobox tries to install during first enter
+echo "Removing mandoc to avoid package conflict..."
+podman start "$LAB_NAME"
+podman exec "$LAB_NAME" zypper rm -y mandoc 2>/dev/null || true
+podman stop "$LAB_NAME"
+
 echo "Installing SELinux tools inside the container..."
 distrobox enter "$LAB_NAME" -- sudo zypper install -y \
     policycoreutils-python-utils \
