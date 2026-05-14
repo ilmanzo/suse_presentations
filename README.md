@@ -11,3 +11,5 @@ This repository is a container for some presentation I'm giving in **SUSE**
 - [Green Computing from the command line](green_computing_from_cli/energy_talk_en.html)
 - [SELinux for QA Engineers](selinux_the_easy_way/selinux_the_easy_way.html)
 
+
+
