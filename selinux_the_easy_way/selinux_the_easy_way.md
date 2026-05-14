@@ -28,8 +28,9 @@ May 2026
 6. Booleans, Ports, and File Contexts
 7. QA Testing Guidelines
 8. Troubleshooting Denials
-9. Live Demos
-10. QA Cheat Sheet
+9. On RKE2 and Storage providers
+10. Live Demos (if time permits)
+11. QA Cheat Sheet
 
 ---
 
@@ -532,6 +533,73 @@ If you want to allow httpd_t to read user_tmp_t files:
 ```
 
 `sealert` ranks suggestions by confidence — **start from the top**.
+---
+
+# 🐳 SELinux & Container Storage (RKE2)
+
+**[RKE2](https://docs.rke2.io/)** (Rancher Kubernetes Engine 2) requires SELinux configuration for storage backends and persistent volumes.
+
+**Key packages**:
+* `rke2-selinux` — custom policy for RKE2 components (auto-installed on RPM systems)
+* `container-selinux` — base container runtime policy
+
+**Enable in config**:
+```yaml
+# /etc/rancher/rke2/config.yaml
+selinux: true
+```
+
+**⚠️ Reboot required** after installing SELinux packages before starting RKE2.
+
+---
+
+# 🐳 Container Volume Isolation (MCS)
+
+SELinux uses **MCS** (Multi-Category Security) to isolate containers.
+
+* Each container gets unique category pair: `s0:c123,c456`
+* Prevents containers from accessing each other's volumes
+* Even if running as same UID
+
+**Example Pod security context**:
+```yaml
+spec:
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c0.c1023"  # allow broad category range
+```
+
+**Kubernetes 1.27+**: Efficient mount-time labeling — no recursive `chcon` on large volumes.
+See [K8s efficient relabeling blog](https://kubernetes.io/blog/2023/04/18/kubernetes-1-27-efficient-selinux-relabeling-beta/).
+
+---
+
+# 🔧 Storage Backend Issues & Fixes
+
+| Backend | Issue | Fix |
+|---------|-------|-----|
+| **Longhorn** | iSCSI `dac_override` denials (container-selinux v2.189.0+) | Load custom module: `echo '(allow iscsid_t self (capability (dac_override)))' > fix.cil && semodule -vi fix.cil` [KB](https://longhorn.io/kb/troubleshooting-volume-attachment-fails-due-to-selinux-denials/) |
+| **local-path-provisioner** | SELinux blocks hostPath access | `chcon -t container_file_t -R /opt/local-path-provisioner` [Issue](https://github.com/rancher/local-path-provisioner/issues/362) |
+| **NFS volumes** | Container can't mount NFS | `setsebool -P virt_use_nfs on` |
+
+---
+
+# 📚 RKE2 + SELinux References
+
+**Official docs**:
+* [RKE2 SELinux Documentation](https://docs.rke2.io/security/selinux)
+* [SUSE RKE2 SELinux Guide](https://documentation.suse.com/cloudnative/rke2/latest/en/security/selinux.html)
+* [Kubernetes Security Contexts](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/)
+
+**Known issues**:
+* [RKE2 Known Issues](https://docs.rke2.io/known_issues) — SELinux module upgrade problems
+* [Downstream cluster SELinux setup](https://github.com/rancher/rancher/issues/48551)
+
+**QA testing notes**:
+* Always test with `selinux: true` in RKE2 config
+* Check volume mount denials: `ausearch -m AVC | grep mount`
+* Verify PV contexts: `ls -Z /var/lib/kubelet/pods/*/volumes/`
+
 
 ---
 # 🧪 Demo Setup
@@ -603,73 +671,6 @@ sudo semanage port -l | grep http_port
 
 # 5. Now the service can bind to port 8888
 ```
-
----
-
-# 🐳 SELinux & Container Storage (RKE2)
-
-**[RKE2](https://docs.rke2.io/)** (Rancher Kubernetes Engine 2) requires SELinux configuration for storage backends and persistent volumes.
-
-**Key packages**:
-* `rke2-selinux` — custom policy for RKE2 components (auto-installed on RPM systems)
-* `container-selinux` — base container runtime policy
-
-**Enable in config**:
-```yaml
-# /etc/rancher/rke2/config.yaml
-selinux: true
-```
-
-**⚠️ Reboot required** after installing SELinux packages before starting RKE2.
-
----
-
-# 🐳 Container Volume Isolation (MCS)
-
-SELinux uses **MCS** (Multi-Category Security) to isolate containers.
-
-* Each container gets unique category pair: `s0:c123,c456`
-* Prevents containers from accessing each other's volumes
-* Even if running as same UID
-
-**Example Pod security context**:
-```yaml
-spec:
-  securityContext:
-    seLinuxOptions:
-      level: "s0:c0.c1023"  # allow broad category range
-```
-
-**Kubernetes 1.27+**: Efficient mount-time labeling — no recursive `chcon` on large volumes.
-See [K8s efficient relabeling blog](https://kubernetes.io/blog/2023/04/18/kubernetes-1-27-efficient-selinux-relabeling-beta/).
-
----
-
-# 🔧 Storage Backend Issues & Fixes
-
-| Backend | Issue | Fix |
-|---------|-------|-----|
-| **Longhorn** | iSCSI `dac_override` denials (container-selinux v2.189.0+) | Load custom module: `echo '(allow iscsid_t self (capability (dac_override)))' > fix.cil && semodule -vi fix.cil` [KB](https://longhorn.io/kb/troubleshooting-volume-attachment-fails-due-to-selinux-denials/) |
-| **local-path-provisioner** | SELinux blocks hostPath access | `chcon -t container_file_t -R /opt/local-path-provisioner` [Issue](https://github.com/rancher/local-path-provisioner/issues/362) |
-| **NFS volumes** | Container can't mount NFS | `setsebool -P virt_use_nfs on` |
-
----
-
-# 📚 RKE2 + SELinux References
-
-**Official docs**:
-* [RKE2 SELinux Documentation](https://docs.rke2.io/security/selinux)
-* [SUSE RKE2 SELinux Guide](https://documentation.suse.com/cloudnative/rke2/latest/en/security/selinux.html)
-* [Kubernetes Security Contexts](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/)
-
-**Known issues**:
-* [RKE2 Known Issues](https://docs.rke2.io/known_issues) — SELinux module upgrade problems
-* [Downstream cluster SELinux setup](https://github.com/rancher/rancher/issues/48551)
-
-**QA testing notes**:
-* Always test with `selinux: true` in RKE2 config
-* Check volume mount denials: `ausearch -m AVC | grep mount`
-* Verify PV contexts: `ls -Z /var/lib/kubelet/pods/*/volumes/`
 
 ---
 
