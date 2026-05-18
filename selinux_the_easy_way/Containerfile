@@ -1,0 +1,20 @@
+FROM registry.opensuse.org/opensuse/tumbleweed:latest
+
+RUN zypper --gpg-auto-import-keys -n refresh && \
+    zypper install --no-recommends -y \
+        policycoreutils \
+        policycoreutils-python-utils \
+        selinux-policy-devel \
+        setools-console \
+        setroubleshoot-server \
+        nginx \
+        audit \
+        checkpolicy \
+        fish \
+        zoxide && \
+    zypper clean --all
+
+RUN mkdir -p /tmp/selinux-lab
+COPY sample-audit.log /tmp/selinux-lab/
+
+CMD ["/usr/bin/fish"]

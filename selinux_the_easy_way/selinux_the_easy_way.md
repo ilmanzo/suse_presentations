@@ -4,6 +4,7 @@ theme: default
 class: invert
 paginate: true
 backgroundImage: linear-gradient(to bottom right, #171c26, #0c322c)
+_backgroundImage: linear-gradient(to bottom right, #171c26, #171c26)
 ---
 
 # 🛡️ SELinux the Easy Way
@@ -14,7 +15,7 @@ backgroundImage: linear-gradient(to bottom right, #171c26, #0c322c)
 
 May 2026
 
-![bg right:40% fit](images/SUSE_Logo-vert_L_Green-pos_sRGB.svg)
+![bg right:35% fit](images/SUSE_Logo-vert_L_Green-pos_sRGB.svg)
 
 ---
 ![bg left:40% fit](images/256px-Police.png)
@@ -119,7 +120,7 @@ see also [This quick intro](https://wiki.gentoo.org/wiki/SELinux/Quick_introduct
 
 ---
 
-# 📖 Policies: The Rulebook
+## 📖 Policies: The Rulebook
 
 A **policy** is the set of rules that defines what each domain (process type) is allowed to do.
 
@@ -471,7 +472,7 @@ type=AVC msg=audit(1716000000.123:456): avc:  denied  { read }
 **Read it as**: "nginx (`httpd_t`) tried to read a file labeled `user_tmp_t` → denied"
 
 ---
-## ⚡ Quick Check: is it a SELinux issue ?
+## ⚡ Quick Check: is it a SELinux issue?
 
 ```bash
 # Step 1: Something fails. Is SELinux blocking it?
@@ -632,7 +633,7 @@ echo 'server { listen 8080; root /usr/share/nginx/html; }' \
   > /tmp/demo.conf
 
 # 2. Move it (not copy!) to nginx config dir
-sudo mv /tmp/demo.conf /etc/nginx/conf.d/
+mv /tmp/demo.conf /etc/nginx/conf.d/
 
 # 3. Check the label — it's WRONG
 ls -Z /etc/nginx/conf.d/demo.conf
@@ -690,6 +691,7 @@ sudo semanage port -l | grep http_port
 | Quick SELinux test | `setenforce 0` → test → `setenforce 1` |
 
 ---
+<!-- _backgroundImage: linear-gradient(to bottom right, #171c26, #171c26) -->
 
 # 🙏 Thank You!
 
@@ -702,4 +704,4 @@ Software Quality Engineer @ SUSE
 Lab setup & slides:
 https://github.com/ilmanzo/suse_presentations
 
-![bg right:30% fit](images/SUSE_Logo-vert_L_Green-pos_sRGB.svg)
+![bg right:35% fit](images/SUSE_Logo-vert_L_Green-pos_sRGB.svg)
