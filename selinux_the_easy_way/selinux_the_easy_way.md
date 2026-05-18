@@ -17,21 +17,22 @@ May 2026
 
 ![bg right:35% fit](images/SUSE_Logo-vert_L_Green-pos_sRGB.svg)
 
+![qrcode](images/qrcode.png)
+
 ---
 ![bg left:40% fit](images/256px-Police.png)
 # 📋 Agenda
 
-1. SELinux Basics and QA Context
-2. Modes: Enforcing, Permissive, Disabled
-3. Access Decisions: DAC + MAC
-4. Policies and Rule Anatomy
-5. Labels: Understand, Inspect, Fix
-6. Booleans, Ports, and File Contexts
-7. QA Testing Guidelines
-8. Troubleshooting Denials
-9. On RKE2 and Storage providers
-10. Live Demos (if time permits)
-11. QA Cheat Sheet
+0. SELinux Basics and QA Context
+1. Modes & Access Control (DAC + MAC)
+2. Policies, Rules & Classes
+3. Labels: Understand, Inspect, Fix
+4. Booleans, Ports, and File Contexts
+5. QA Testing Guidelines
+6. Troubleshooting Denials
+7. RKE2 and Storage
+8. Live Demos (if time permits)
+9. QA Cheat Sheet + References
 
 ---
 
@@ -202,13 +203,36 @@ allow httpd_t httpd_log_t:file { append create write ... };
 If no rule exists → **denied**. That's the "default deny" principle.
 
 ---
+# 📏 SELinux Rule Types
+
+**Rule Types** (how to control):
+- `allow` — permits action
+- `type_transition` — when X runs Y, become Z domain
+- `type_change` — process changes domain
+- `dontaudit` — suppresses logging (for noisy but safe denials)
+- `auditallow` — forces logging of allowed actions
+
+**Example**: `type_transition init_t sshd_exec_t:process sshd_t;` = "when init executes sshd binary, transition to sshd_t domain"
+
+---
+# 🎓 SELinux Classes
+
+**Common Object Classes** (what can be controlled):
+- `file`, `dir` — filesystem objects
+- `process`, `domain` — running processes
+- `tcp_socket`, `udp_socket` — network sockets
+- `capability` — system capabilities (mknod, net_admin, etc.)
+- `fd` — file descriptors
+- `dir_search_perms`, `open`, `read`, `write` — specific permissions
+
+---
 # 📂 Where Do Policies Live? (on SUSE)
 
 ```
 /etc/selinux/
 ├── config                      # SELINUX=enforcing, SELINUXTYPE=targeted
 └── targeted/
-    ├── policy/policy.33        # compiled binary policy (loaded by kernel)
+    ├── policy/policy.35        # compiled binary policy (loaded by kernel)
     ├── contexts/               # default contexts for logins, services, etc.
     └── modules/                # installed policy modules (recently migrated here)
 
@@ -235,9 +259,18 @@ Every object in the system has a **security context** (label).
 A label is made of 4 parts: user, role, type, level
 
 ```
-system_u : system_r : httpd_t : s0:c1,c2
-  user       role       type      level
+system_u : object_r : httpd_sys_content_t : s0
+  user       role             type          level
 ```
+
+File labels are stored as **extended attributes (xattr)** on the inode:
+```bash
+$ getfattr -d -m . /var/www/html/index.html
+# security.selinux="system_u:object_r:httpd_sys_content_t:s0"
+```
+
+for that reason SELINUX needs a filesystem which supports xattrs.
+
 
 ---
 ## 🔍 Label Fields Explained : User
@@ -246,6 +279,8 @@ system_u : system_r : httpd_t : s0:c1,c2
 * Used by **RBAC (Role-Based Access Control)** policies.
 * [Maps Linux users to SELinux users](https://wiki.gentoo.org/wiki/SELinux/Users_and_logins). Controls which roles are available to a user.
 * `system_u` = system daemons, `unconfined_u` = regular users (no restrictions)
+
+![bg right:40% fit](images/user-experience-5b1f3a.jpg)
 
 ---
 ## 🔍 Label Fields Explained : Role
@@ -268,8 +303,10 @@ system_u : system_r : httpd_t : s0:c1,c2
 ## 🔍 Label Fields Explained: Level
 
 **Level** (`s0`, `s0:c1,c2`)
-* Used by **MLS/MCS (Multi-Level / Multi-Category Security)** policies.
+* Used mostly by **MLS/MCS (Multi-Level / Multi-Category Security)** policies and kubernetes.
 * Defines sensitivity and categories. Crucial for **Container isolation** (e.g., Podman gives each container a unique category like `c1,c2`).
+
+![bg left:40% fit](images/levels.gif)
 
 ---
 
@@ -293,14 +330,60 @@ unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 
 ---
 
-# ✏️ Changing Labels
+## ✏️ Changing Labels: 2 Approaches
 
-| Tool | Permanent? | Use case |
-|------|-----------|----------|
-| `chcon -t httpd_sys_content_t file` | No (lost on relabel) | Quick testing |
-| `semanage fcontext -a -t httpd_sys_content_t '/srv/web(/.*)?'` + `restorecon -Rv /srv/web` | Yes | Production fix |
+There are **two ways** to change a file's SELinux label:
 
-**QA tip**: always use `semanage fcontext` + `restorecon` in test procedures. `chcon` changes silently vanish after `restorecon -R` or a full relabel.
+1. **Temporary (xattr)**: use `chcon` to modify the label directly on the file/inode
+2. **Permanent (rules)**: define a local labeling rule so the label persists
+
+![bg right:37% fit](images/spider-man-meme-1200x675.webp)
+
+---
+
+## 🔧 Method 1: Temporary with `chcon`
+
+**`chcon`** modifies the **xattr directly** on the file's inode — changes the label **right now**, but doesn't update the permanent rule:
+
+```bash
+$ chcon -t httpd_sys_content_t /srv/myfile.txt
+$ ls -Z /srv/myfile.txt
+system_u:object_r:httpd_sys_content_t:s0  /srv/myfile.txt
+```
+
+**Problem**: When **`restorecon`** runs, it consults `file_contexts.local`, finds no rule for your file, and **reverts the label back to default**. Your change vanishes.
+
+**Use case**: Quick testing only.
+
+---
+
+## 🔧 Method 2: Permanent with `semanage` + `restorecon`
+
+Define the rule **once**, `restorecon` applies it **forever**:
+
+```bash
+# Add the rule
+$ sudo semanage fcontext -a -t httpd_sys_content_t '/srv/myapp(/.*)?'
+
+# Apply to existing files
+$ sudo restorecon -Rv /srv/myapp
+```
+
+The rule is stored in **`/etc/selinux/targeted/contexts/files/file_contexts.local`**:
+```
+/srv/myapp(/.*)?  --  system_u:object_r:httpd_sys_content_t:s0
+```
+
+**Use case**: Production fixes. Label persists across relabels, package updates, `mv`, etc.
+
+---
+# QA tips 
+
+-  Always use `semanage` + `restorecon` in test process. `chcon` changes silently vanish after `restorecon -R` or package updates.
+
+- Propagate the changes to upstream
+
+![bg right:40% fit](images/take_notes.gif)
 
 ---
 #### ⚠️ The mv/cp Trap
@@ -377,9 +460,44 @@ The **`-P`** flag = persistent across reboots. Without it, the change is lost on
 
 ---
 
-# 🔌 Port Labeling
+# 🔘 What's a Boolean? Example
+
+A boolean is a **policy toggle**. It switches entire sets of allow rules on/off without editing the policy.
+
+```
+httpd_can_network_connect = off (default)
+  ↓
+  Policy has NO rules: allow httpd_t any_domain:tcp_socket { connect ... };
+  nginx CANNOT make outbound connections
+
+httpd_can_network_connect = on
+  ↓
+  Same policy now includes those rules
+  nginx CAN make outbound connections
+```
+
+**Real use case**: Your web app needs to call a backend API on `http://db.local:5432`. Set the boolean, deny is gone.
+
+---
+
+# 🕸️ What about network ?
 
 SELinux controls which processes can **bind** to which ports.
+
+Port labels are stored in the SELINUX database (managed via `semanage port`):
+
+```bash
+$ sudo semanage port -l | grep http
+http_cache_port_t              tcp      8080, 8118, 8123, 10001-10010
+http_cache_port_t              udp      3130
+http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000
+http_port_t                    udp      80, 443
+pegasus_http_port_t            tcp      5988
+pegasus_https_port_t           tcp      5989
+```
+
+---
+# 🔌 Port Labeling
 
 ```bash
 # See what ports SSH is allowed to use
@@ -396,6 +514,36 @@ ssh_port_t                     tcp      2222, 22
 ```
 
 Same applies to any service using a non-standard port.
+
+---
+# 🔧 From binary to port 🔌
+
+- When the system boots and systemd launches the SSH daemon, the executable file (usually `/usr/sbin/sshd`) is read.
+- The file itself has a context label of `sshd_exec_t`:
+  ```bash
+  $ ls -Z $(which sshd)
+  system_u:object_r:sshd_exec_t:s0 /usr/sbin/sshd*
+  ```
+- SELinux policy dictates a domain transition: when an init system executes a file labeled `sshd_exec_t`, the resulting running process must transition into the restricted `sshd_t` domain.
+  ```bash
+    $ sudo sesearch -T -s init_t -t sshd_exec_t -c process
+    type_transition init_t sshd_exec_t:process sshd_t;
+  ```
+
+---
+# 🔧 From binary to port 🔌
+
+- The `sshd` process tries to bind and listen on port 22.
+The port is identified as `ssh_port_t`:
+  ```bash
+  $ sudo semanage port -l | grep ssh
+  ssh_port_t                     tcp      22
+  ```
+
+- A *permit* rule states that processes of domain `sshd_t` can bind to port type `ssh_port_t`, and send/receive bytes from/to that port.
+  ```bash
+  $ sudo sesearch --allow -s sshd_t -t ssh_port_t | grep sshd_t
+  ```
 
 ---
 
@@ -419,7 +567,7 @@ system_u:object_r:httpd_sys_content_t:s0 index.html
 
 ---
 
-# ✅ QA Angle: Testing with SELinux
+# ✅ QA Recap: Testing with SELinux
 
 **Rules for QA test environments:**
 
@@ -674,7 +822,6 @@ sudo semanage port -l | grep http_port
 ```
 
 ---
-
 ### 📋 QA Cheat Sheet
 
 | Task | Command |
