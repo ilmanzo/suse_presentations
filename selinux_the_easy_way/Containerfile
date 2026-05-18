@@ -4,6 +4,7 @@ RUN zypper --gpg-auto-import-keys -n refresh && \
     zypper install --no-recommends -y \
         policycoreutils \
         policycoreutils-python-utils \
+        selinux-policy-targeted \
         selinux-policy-devel \
         setools-console \
         setroubleshoot-server \

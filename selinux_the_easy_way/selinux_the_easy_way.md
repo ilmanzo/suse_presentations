@@ -605,7 +605,7 @@ See [K8s efficient relabeling blog](https://kubernetes.io/blog/2023/04/18/kubern
 ---
 # 🧪 Demo Setup
 
-**Prerequisites**: openSUSE Tumbleweed with `distrobox` and `podman` installed.
+**Prerequisites**: openSUSE Tumbleweed with `podman` installed.
 
 ```bash
 # From this repo's directory:
@@ -617,7 +617,7 @@ $ ./selinux-lab.sh
 # 3. Copy a sample audit log for offline demos
 
 # Enter the lab:
-$ distrobox enter selinux-lab
+$ podman start -ai selinux-lab
 ```
 
 All demo commands in the following slides can be run inside this container.
